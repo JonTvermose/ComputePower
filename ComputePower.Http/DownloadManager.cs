@@ -10,13 +10,19 @@ namespace ComputePower.Http
     {
         public event EventHandler<ProgressEventArgs> ProgressHandler;
 
+        public DownloadManager()
+        {
+        }
+
         public DownloadManager(EventHandler<ProgressEventArgs> handler)
         {
             ProgressHandler = handler;
         }
 
-        public async Task DownloadAndSaveFile(string url, string path, string fileName)
+        public async Task<bool> DownloadAndSaveFile(string url, string path, string fileName)
         {
+            var isMoreToRead = true;
+
             using (var client = new HttpClient())
             {
                 using (HttpResponseMessage response = client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).Result)
@@ -27,7 +33,6 @@ namespace ComputePower.Http
                     {
                         var totalRead = 0L;
                         var buffer = new byte[8192];
-                        var isMoreToRead = true;
                         ProgressHandler?.Invoke(this, new ProgressEventArgs(0, "Download started.", false));
 
                         do
@@ -50,6 +55,7 @@ namespace ComputePower.Http
                     }
                 }
             }
+            return !isMoreToRead;
         }
     }
 }
