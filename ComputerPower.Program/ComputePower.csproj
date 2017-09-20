@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ComputePower.Files\ComputePower.Files.csproj" />
     <ProjectReference Include="..\ComputePower.Http\ComputePower.Http.csproj" />
   </ItemGroup>
 
