@@ -19,8 +19,18 @@ namespace ComputePower.Http
             ProgressHandler = handler;
         }
 
+        /// <summary>
+        /// Download a file from a given URL and save said file to a given path and filename
+        /// If the path does not exists it will be created
+        /// </summary>
+        /// <param name="url">URL where to retrieve the file</param>
+        /// <param name="path">Path where to save the downloaded file</param>
+        /// <param name="fileName">The downloaded file will be saved using this filename</param>
+        /// <returns></returns>
         public async Task<bool> DownloadAndSaveFile(string url, string path, string fileName)
         {
+            Directory.CreateDirectory(path);
+
             var isMoreToRead = true;
 
             using (var client = new HttpClient())
