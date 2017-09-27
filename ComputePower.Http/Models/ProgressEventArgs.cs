@@ -13,6 +13,8 @@ namespace ComputePower.Http.Models
         /// </summary>
         public bool IsComplete { get; }
 
+        public Exception Exception { get; set; }
+
         public ProgressEventArgs(double value)
         {
             BytesRead = value;
