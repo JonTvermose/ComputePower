@@ -19,13 +19,15 @@ namespace ComputePower
         public void RunAutonomousProgram(string url, EventHandler<ProgressEventArgs> handler)
         {
             var downloadManager = new DownloadManager();
-            downloadManager.DownloadAndSaveFile(url, _path, _fileName, handler);
+            downloadManager.Progress += handler;
+            downloadManager.DownloadAndSaveFile(url, _path, _fileName);
         }
 
         public async Task Test(string url, string path, string fileName, EventHandler<ProgressEventArgs> handler)
         {
             var downloadManager = new DownloadManager();
-            await downloadManager.DownloadAndSaveFile(url, path, fileName, handler);
+            downloadManager.Progress += handler;
+            await downloadManager.DownloadAndSaveFile(url, path, fileName);
         }
     }
 }

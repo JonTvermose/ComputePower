@@ -8,6 +8,7 @@ namespace ComputePower.Http
 {
     public class DownloadManager
     {
+        public event EventHandler<ProgressEventArgs> Progress;
 
         /// <summary>
         /// Download a file from a given URL and save said file to a given path and filename
@@ -16,11 +17,10 @@ namespace ComputePower.Http
         /// <param name="url">URL where to retrieve the file</param>
         /// <param name="path">Path where to save the downloaded file</param>
         /// <param name="fileName">The downloaded file will be saved using this filename</param>
-        /// <param name="progressHandler">Event handler for receiving updates on progress</param>
         /// <returns></returns>
-        public async Task<bool> DownloadAndSaveFile(string url, string path, string fileName, EventHandler<ProgressEventArgs> progressHandler)
+        public async Task<bool> DownloadAndSaveFile(string url, string path, string fileName)
         {
-            //Directory.CreateDirectory(path);
+            //Directory.CreateDirectory(path); // Exception in .NET Core 2.0
 
             var isMoreToRead = true;
 
@@ -34,22 +34,22 @@ namespace ComputePower.Http
                     {
                         var totalRead = 0L;
                         var buffer = new byte[8192];
-                        progressHandler?.Invoke(this, new ProgressEventArgs(0, "Download started.", false));
-
+                        OnProgress(this, new ProgressEventArgs(0, "Download started.", false));
+                        
                         do
                         {
                             var read = await contentStream.ReadAsync(buffer, 0, buffer.Length);
                             if (read == 0)
                             {
                                 isMoreToRead = false;
-                                progressHandler?.Invoke(this, new ProgressEventArgs((double) totalRead/1000, "Download complete. File saved to: " + fileName, true));
+                                OnProgress(this, new ProgressEventArgs((double) totalRead/1000, "Download complete. File saved to: " + fileName, true));
                             }
                             else
                             {
                                 await fileStream.WriteAsync(buffer, 0, read);
 
                                 totalRead += read;
-                                progressHandler?.Invoke(this, new ProgressEventArgs((double) totalRead/1000));
+                                OnProgress(this, new ProgressEventArgs((double) totalRead/1000));
                             }
                         }
                         while (isMoreToRead);
@@ -57,6 +57,11 @@ namespace ComputePower.Http
                 }
             }
             return !isMoreToRead;
+        }
+
+        protected virtual void OnProgress(object sender, ProgressEventArgs args)
+        {
+            Progress?.Invoke(sender, args);
         }
     }
 }
