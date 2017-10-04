@@ -10,7 +10,6 @@ namespace ComputePower.Computation
 
         public event EventHandler<ComputationProgressEventArgs> ComputationProgress;
 
-
         private readonly Task[] _tasks;
 
         public CpuComputation()
@@ -22,7 +21,7 @@ namespace ComputePower.Computation
         {
             // Check that DataModel has been set, else generate random data
             if(DataModel == null)
-                GenerateRandomData(20000); // !! N^2 complexity!
+                GenerateRandomData(5000); // !! N^2 complexity!
 
             var start = DateTime.Now;
             // How many objects should each task handle
@@ -36,9 +35,9 @@ namespace ComputePower.Computation
                 int endOffset = i == _tasks.Length ? DataModel.Data.Length : startOffset + chunkSize;
 
                 // Intitialize and start the tasks
-                _tasks[i] = new Task(() => ComputeData(DataModel, startOffset, endOffset, deltaTime));
+                _tasks[i] = new Task(() => ComputeData(DataModel, startOffset, endOffset, deltaTime, i));
                 _tasks[i].Start();
-                ComputationProgress?.Invoke(this, new ComputationProgressEventArgs(i + " threads started."));
+                ComputationProgress?.Invoke(this, new ComputationProgressEventArgs(i + 1 + " threads started."));
             }
 
             // Await all threads completion
@@ -53,9 +52,14 @@ namespace ComputePower.Computation
             ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Computation finished in " + (end - start).Milliseconds + " ms.", true));
         }
 
-        private void ComputeData(DataModel inputData, int startOffset, int endOffset, double deltaTime)
+        private void ComputeData(DataModel inputData, int startOffset, int endOffset, double deltaTime, int threadId)
         {
             ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Initiating computation from " + startOffset + " to " + endOffset));
+
+            int chunkSize = endOffset - startOffset;
+            double progress = 0.0;
+            double progressPercentStep = 15.0; // How often should the eventhandler be invoked with progress updates?
+
             // Run calculations on subset of the data
             for (int i = startOffset; i < endOffset; i++)
             {
@@ -70,8 +74,22 @@ namespace ComputePower.Computation
                 }
                 // Update position & velocity
                 inputData.Data[i].Update(deltaTime);
+
+                // Calculate progress and invoke eventhandler
+                double temp = (double) (i - startOffset + 1) / (double) chunkSize * 100.0;
+                if (temp - progress > progressPercentStep)
+                {
+                    progress = temp;
+                    var args = new ComputationProgressEventArgs();
+                    args.Progress = progress;
+                    args.ThreadId = threadId;
+                    ComputationProgress?.Invoke(this, args);
+                }
             }
-            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Thread completed!"));
+            var completed = new ComputationProgressEventArgs();
+            completed.Progress = 100.0;
+            completed.ThreadId = threadId;
+            ComputationProgress?.Invoke(this, completed);
         }
 
         /// <summary>

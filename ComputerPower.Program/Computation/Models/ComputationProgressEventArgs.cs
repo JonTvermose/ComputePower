@@ -6,8 +6,14 @@ namespace ComputePower.Computation.Models
 {
     public class ComputationProgressEventArgs : EventArgs
     {
-        public string Message { get; }
-        public bool ComputationCompleted { get; }
+        public string Message { get; set; }
+        public bool ComputationCompleted { get; set; }
+        public double Progress { get; set; }
+        public int ThreadId { get; set; }
+
+        public ComputationProgressEventArgs()
+        {
+        }
 
         public ComputationProgressEventArgs(string message)
         {

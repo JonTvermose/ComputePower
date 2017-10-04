@@ -38,7 +38,14 @@ namespace ComputePower
 
         private void ComputationProgressWriter(object sender, ComputationProgressEventArgs args)
         {
-            Console.WriteLine(args.Message);
+            if (Math.Abs(args.Progress) < 0.1)
+            {
+                Console.WriteLine(args.Message);
+            }
+            else
+            {
+                Console.WriteLine("Thread {0} progress: {1}", args.ThreadId, args.Progress);
+            }
         }
     }
 }

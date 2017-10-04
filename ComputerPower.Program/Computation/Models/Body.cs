@@ -9,6 +9,12 @@ namespace ComputePower.Computation.Models
         private double VX, VY, VZ;
         private double FX, FY, FZ;
 
+        public Body(double x, double y, double z)
+        {
+            PX = x;
+            PY = y;
+            PZ = z;
+        }
         /// <summary>
         /// Generate a random Body
         /// </summary>
@@ -70,6 +76,11 @@ namespace ComputePower.Computation.Models
             PX += deltaTime * VX;
             PY += deltaTime * VY;
             PZ += deltaTime * VZ;
+        }
+
+        public static Body operator - (Body b1, Body b2)
+        {
+            return new Body(b1.PX - b2.PX, b1.PY - b2.PY, b1.PZ - b2.PZ);
         }
     }
 
