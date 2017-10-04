@@ -10,11 +10,11 @@ namespace ComputePower.Computation
     {
         DataModel DataModel { get; set; }
 
-        event EventHandler ComputationCompleted;
+        event EventHandler<ComputationProgressEventArgs> ComputationProgress;
 
         /// <summary>
         /// Executes the parallel data computation
         /// </summary>
-        Task ExecuteAsync();
+        Task ExecuteAsync(double deltaTime);
     }
 }

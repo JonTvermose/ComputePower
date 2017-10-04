@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+using ComputePower.Computation;
+using ComputePower.Computation.Models;
 using ComputePower.Http;
 using ComputePower.Http.Models;
 
@@ -28,6 +30,15 @@ namespace ComputePower
             var downloadManager = new DownloadManager();
             downloadManager.Progress += handler;
             await downloadManager.DownloadAndSaveFile(url, path, fileName);
+
+            IComputation c = new CpuComputation();
+            c.ComputationProgress += ComputationProgressWriter;
+            await c.ExecuteAsync(1e11);
+        }
+
+        private void ComputationProgressWriter(object sender, ComputationProgressEventArgs args)
+        {
+            Console.WriteLine(args.Message);
         }
     }
 }

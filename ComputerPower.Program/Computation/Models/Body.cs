@@ -4,10 +4,36 @@ namespace ComputePower.Computation.Models
 {
     public class Body
     {
-        public float Mass;
+        public double Mass;
         public double PX, PY, PZ;
         private double VX, VY, VZ;
         private double FX, FY, FZ;
+
+        /// <summary>
+        /// Generate a random Body
+        /// </summary>
+        public Body(double radius, double maxMass)
+        {
+            Random r = new Random();
+            // Random mass
+            Mass = r.NextDouble() * maxMass;
+
+            // Random radius
+            var radi = r.NextDouble() * radius;
+
+            // Random position
+            var x = r.NextDouble();
+            var y = r.NextDouble();
+            var z = r.NextDouble();
+            var factor = 1 / Math.Sqrt(x * x + y * y + z * z) * radi;
+            PX = x * factor;
+            PY = y * factor;
+            PZ = z * factor;
+
+            VX = 0.0;
+            VY = 0.0;
+            VZ = 0.0;
+        }
 
         public void AddForce(Body b)
         {
