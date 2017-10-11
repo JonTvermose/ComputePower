@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using ComputePower.Computation.Models;
 
@@ -6,7 +7,7 @@ namespace ComputePower.Computation
 {
     public class CpuComputation : IComputation
     {
-        public DataModel DataModel { get; set; }
+        public Object Result { get; set; }
 
         public event EventHandler<ComputationProgressEventArgs> ComputationProgress;
 
@@ -14,28 +15,31 @@ namespace ComputePower.Computation
 
         public CpuComputation()
         {
+            //_tasks = new Task[Environment.ProcessorCount];
             _tasks = new Task[Environment.ProcessorCount];
+
         }
 
-        public async Task ExecuteAsync(double deltaTime)
+        public async Task ExecuteAsync(params object[] inputObjects)
         {
+            double deltaTime = 1.0;
             // Check that DataModel has been set, else generate random data
-            if(DataModel == null)
-                GenerateRandomData(50000); // !! N^2 complexity!
+            if(inputObjects == null || inputObjects.Length <= 1)
+                inputObjects = GenerateRandomData(1000); // !! N^2 complexity!
 
             var start = DateTime.Now;
             // How many objects should each task handle
-            int chunkSize = (DataModel.Data.Length / _tasks.Length);
+            int chunkSize = (((DataModel) inputObjects[1]).Data.Length / _tasks.Length);
 
             ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Creating " + _tasks.Length + " threads, each processing " + chunkSize + " elements."));
             for (int i = 0; i < _tasks.Length; i++)
             {
                 // Calculate offsets
                 int startOffset = chunkSize * i;
-                int endOffset = i == _tasks.Length ? DataModel.Data.Length : startOffset + chunkSize;
+                int endOffset = i == _tasks.Length ? ((DataModel)inputObjects[1]).Data.Length : startOffset + chunkSize;
 
                 // Intitialize and start the tasks
-                _tasks[i] = new Task(() => ComputeData(DataModel, startOffset, endOffset, deltaTime, i));
+                _tasks[i] = new Task(() => ComputeData(((DataModel)inputObjects[1]), startOffset, endOffset, deltaTime, i));
                 _tasks[i].Start();
                 ComputationProgress?.Invoke(this, new ComputationProgressEventArgs(i + 1 + " threads started."));
             }
@@ -49,7 +53,8 @@ namespace ComputePower.Computation
             var end = DateTime.Now;
 
             // Signal the event handler when all threads are completed and data is collected
-            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Computation finished in " + (end - start).Milliseconds + " ms.", true));
+            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Computation finished in " + (end - start).TotalSeconds + " seconds.", true));
+            Result = inputObjects[1];
         }
 
         private void ComputeData(DataModel inputData, int startOffset, int endOffset, double deltaTime, int threadId)
@@ -94,16 +99,17 @@ namespace ComputePower.Computation
         /// <summary>
         /// Generate random test data.
         /// </summary>
-        private void GenerateRandomData(int bodies)
+        private object[] GenerateRandomData(int bodies)
         {
+            object[] output = new object[2];
             // Dont destroy the processor. N^2 complexity
             if (bodies > 50000)
                 bodies = 50000;
 
             ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Starting to generate random data: " + bodies));
 
-            DataModel = new DataModel();
-            DataModel.Data = new Body[bodies];
+            output[1] = new DataModel();
+            ((DataModel)output[1]).Data = new Body[bodies];
 
             var solarMass = 1.98892e30;
             var earthMass = solarMass / 333000.0;
@@ -111,9 +117,10 @@ namespace ComputePower.Computation
 
             for (int i = 0; i < bodies; i++)
             {
-                DataModel.Data[i] = new Body(earthDist, solarMass);
+                ((DataModel)output[1]).Data[i] = new Body(earthDist, solarMass);
             }
             ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Random data generated."));
+            return output;
         }
     }
 }

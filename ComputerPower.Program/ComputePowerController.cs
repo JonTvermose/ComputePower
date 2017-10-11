@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using ComputePower.Computation;
 using ComputePower.Computation.Models;
+using ComputePower.Helpers;
 using ComputePower.Http;
 using ComputePower.Http.Models;
 
@@ -34,6 +35,9 @@ namespace ComputePower
             IComputation c = new CpuComputation();
             c.ComputationProgress += ComputationProgressWriter;
             await c.ExecuteAsync(1e11);
+            
+            FileSaver fileSaver = new FileSaver();
+            fileSaver.SerializeAndSaveFile(c.Result, path);
         }
 
         private void ComputationProgressWriter(object sender, ComputationProgressEventArgs args)

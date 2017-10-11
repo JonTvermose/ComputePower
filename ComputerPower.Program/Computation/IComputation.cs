@@ -8,13 +8,13 @@ namespace ComputePower.Computation
 {
     interface IComputation
     {
-        DataModel DataModel { get; set; }
+        object Result { get; set; }
 
         event EventHandler<ComputationProgressEventArgs> ComputationProgress;
 
         /// <summary>
         /// Executes the parallel data computation
         /// </summary>
-        Task ExecuteAsync(double deltaTime);
+        Task ExecuteAsync(params object[] inputObjects);
     }
 }

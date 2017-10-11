@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using ComputePower.Computation.Models;
 
 namespace ComputePower
 {
@@ -9,6 +10,7 @@ namespace ComputePower
     /// </summary>
     internal class DllLoader
     {
+        #region Externally implemented methods from kernel32.dll
         [DllImport("kernel32.dll")]
         private static extern IntPtr LoadLibrary(string dllToLoad);
 
@@ -17,8 +19,9 @@ namespace ComputePower
 
         [DllImport("kernel32.dll")]
         private static extern bool FreeLibrary(IntPtr hModule);
-
-        protected delegate bool ParralelDelegate(params object[] inputObjects);
+        #endregion
+        
+        protected delegate bool ParralelDelegate(EventHandler<ComputationProgressEventArgs> progressHandler, params object[] inputObjects);
 
         private IntPtr _pDll;
 
