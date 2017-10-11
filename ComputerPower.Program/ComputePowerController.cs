@@ -27,9 +27,9 @@ namespace ComputePower
 
         public async Task Test(string url, string path, string fileName, EventHandler<ProgressEventArgs> handler)
         {
-            var downloadManager = new DownloadManager();
-            downloadManager.Progress += handler;
-            await downloadManager.DownloadAndSaveFile(url, path, fileName);
+            //var downloadManager = new DownloadManager();
+            //downloadManager.Progress += handler;
+            //await downloadManager.DownloadAndSaveFile(url, path, fileName);
 
             IComputation c = new CpuComputation();
             c.ComputationProgress += ComputationProgressWriter;
