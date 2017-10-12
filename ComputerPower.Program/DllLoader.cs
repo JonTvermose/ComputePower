@@ -77,7 +77,7 @@ namespace ComputePower
             Type[] parametersType = new Type[]{ typeof(object[]) };
 
             // Retrieve the method
-            var method = classType.GetMethod(methodName, parametersType);
+            var method = classType.GetMethod(methodName);
             if (method == null)
                 throw new Exception();
 
@@ -92,7 +92,7 @@ namespace ComputePower
             try
             {
                 // Invoke (call) the method and await the result (method is async)
-                var result = method.Invoke(objectType, parameters);
+                var result = method.Invoke(objectType, new object[]{1, 2});
                 return result;
             }
             catch (Exception e)

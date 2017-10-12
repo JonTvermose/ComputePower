@@ -17,34 +17,19 @@ namespace ComputePower.NBody.Computation
             _tasks = new Task[Environment.ProcessorCount];
         }
 
-        [DllExport("TestA", CallingConvention = CallingConvention.StdCall)]
-        public static int TestA(int a, int b)
+        [DllExport("ExecuteAsync", CallingConvention = CallingConvention.StdCall)]
+        public async Task<Object> ExecuteAsync()
         {
-            return a + b;
-        }
+            // Load data?
 
-        [DllExport("TestB", CallingConvention = CallingConvention.StdCall)]
-        public int TestB(int a, int b)
-        {
-            return a + b;
-        }
 
-        public async Task<Object> ExecuteAsync(params object[] inputObjects)
-        {
             DataModel dataModel;
             double deltaTime;
             // Check that DataModel has been set, else generate random data
-            if (inputObjects == null)
-            {
-                dataModel = GenerateRandomData(1000); // !! N^2 complexity!
-                deltaTime = 1e11;
-            }
-            else
-            {
-                dataModel = (DataModel) inputObjects[0];
-                deltaTime = (double) inputObjects[1];
-                ComputationProgress += (EventHandler<ComputationProgressEventArgs>) inputObjects[2];
-            }
+            dataModel = GenerateRandomData(1000); // !! N^2 complexity!
+            deltaTime = 1e11;
+            //ComputationProgress += progressHandler;
+            
             // Setup timing
             var start = DateTime.Now;
 

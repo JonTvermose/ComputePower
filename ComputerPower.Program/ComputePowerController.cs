@@ -58,22 +58,20 @@ namespace ComputePower
 
         public async Task<bool> BeginComputation(string assemblyPath, string assemblyName, params object[] dataObjects)
         {
-            dataObjects = new object[2];
-            dataObjects[0] = 1;
-            dataObjects[1] = 3;
-
-            var test = TestB(1, 3);
             object result = null;
             try
             {
                 // Load the assembly and begin computation
                 DllLoader dllLoader = new DllLoader();
-                result = await dllLoader.CallMethod(assemblyPath, assemblyName, "Test", dataObjects);
+                result = await dllLoader.CallMethod(assemblyPath, assemblyName, "ExecuteAsync", dataObjects);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace);                
+                Console.WriteLine(e.StackTrace);
             }
+
+            //NBody.Computation.Computation c = new NBody.Computation.Computation();
+            //result = await c.ExecuteAsync(2, 2);
 
 
             // Save results to a file

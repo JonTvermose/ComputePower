@@ -9,6 +9,6 @@ namespace ComputePower.NBody
         /// <summary>
         /// Executes the parallel data computation
         /// </summary>
-        Task<Object> ExecuteAsync(params object[] inputObjects);
+        Task<Object> ExecuteAsync();
     }
 }
