@@ -6,6 +6,7 @@ using ComputePower.Computation.Models;
 using ComputePower.Helpers;
 using ComputePower.Http;
 using ComputePower.Http.Models;
+using Newtonsoft.Json;
 
 namespace ComputePower
 {
@@ -63,16 +64,12 @@ namespace ComputePower
             {
                 // Load the assembly and begin computation
                 DllLoader dllLoader = new DllLoader();
-                result = await dllLoader.CallMethod(assemblyPath, assemblyName, "ExecuteAsync", dataObjects);
+                result = dllLoader.CallMethod(assemblyPath, assemblyName, "Execute", ComputationProgressWriter);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.StackTrace);
             }
-
-            //NBody.Computation.Computation c = new NBody.Computation.Computation();
-            //result = await c.ExecuteAsync(2, 2);
-
 
             // Save results to a file
             FileSaver fileSaver = new FileSaver();
@@ -81,21 +78,17 @@ namespace ComputePower
             return true;
         }
 
-        [DllImport("ComputePower.NBody.dll", CallingConvention = CallingConvention.StdCall)]
-        public static extern int TestA(int a, int b);
-
-        [DllImport("ComputePower.NBody.dll", CallingConvention = CallingConvention.StdCall)]
-        public static extern int TestB(int a, int b);
-
-        private void ComputationProgressWriter(object sender, ComputationProgressEventArgs args)
+        private void ComputationProgressWriter(object sender, EventArgs args)
         {
-            if (Math.Abs(args.Progress) < 0.1)
+            double progress = args.GetType().GetProperty("Progress") != null ? (double) args.GetType().GetProperty("Progress").GetValue(args, null) : 0.0;
+            string message = (string) args.GetType().GetProperty("Message")?.GetValue(args, null);
+            if (progress < 0.1 && message != null)
             {
-                Console.WriteLine(args.Message);
+                Console.WriteLine(message);
             }
             else
             {
-                Console.WriteLine("Thread progress: {1}", args.Progress);
+                Console.WriteLine("Thread progress: {0}", progress);
             }
         }
     }

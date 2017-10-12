@@ -31,7 +31,7 @@ namespace ComputePower.UserInterface
             Console.WriteLine("Enter assemblyname: ");
             if ((FileName = Console.ReadLine()).Length <= 1)
             {
-                FileName = "ComputePower.NBody";
+                FileName = "ComputePower.CPUComputation";
             }
             
             ProgressHandler += ProgressDownloadPrinter;

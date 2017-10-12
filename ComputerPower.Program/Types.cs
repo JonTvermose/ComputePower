@@ -3,6 +3,6 @@ using ComputePower.Computation.Models;
 
 namespace ComputePower
 {
-    public delegate bool ParralelDelegate(EventHandler<ComputationProgressEventArgs> progressHandler, params object[] inputObjects);
+    public delegate Object ParralelDelegate(int a);
 
 }

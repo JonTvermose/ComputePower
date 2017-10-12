@@ -3,57 +3,53 @@ using System.Threading.Tasks;
 using ComputePower.NBody.Computation.Models;
 using RGiesecke.DllExport;
 using System.Runtime.InteropServices;
+using System.Threading;
 
 namespace ComputePower.NBody.Computation
 {
     public class Computation : IComputation
     {
-        private event EventHandler<ComputationProgressEventArgs> ComputationProgress;
+        private event EventHandler<EventArgs> ComputationProgress;
 
-        private readonly Task[] _tasks;
+        private readonly Thread[] _threads;
 
         public Computation()
         {
-            _tasks = new Task[Environment.ProcessorCount];
+            _threads = new Thread[Environment.ProcessorCount];
         }
-
-        [DllExport("ExecuteAsync", CallingConvention = CallingConvention.StdCall)]
-        public async Task<Object> ExecuteAsync()
+        public Object Execute(EventHandler<EventArgs> progressHandler)
         {
-            // Load data?
-
-
             DataModel dataModel;
             double deltaTime;
             // Check that DataModel has been set, else generate random data
             dataModel = GenerateRandomData(1000); // !! N^2 complexity!
             deltaTime = 1e11;
-            //ComputationProgress += progressHandler;
-            
+            ComputationProgress += progressHandler;
+
             // Setup timing
             var start = DateTime.Now;
 
             // How many objects should each task handle
-            int chunkSize = (dataModel.Data.Length / _tasks.Length);
+            int chunkSize = (dataModel.Data.Length / _threads.Length);
 
             // Create the tasks and begin
-            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Creating " + _tasks.Length + " threads, each processing " + chunkSize + " elements."));
-            for (int i = 0; i < _tasks.Length; i++)
+            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Creating " + _threads.Length + " threads, each processing " + chunkSize + " elements."));
+            for (int i = 0; i < _threads.Length; i++)
             {
                 // Calculate offsets
                 int startOffset = chunkSize * i;
-                int endOffset = i == _tasks.Length ? dataModel.Data.Length : startOffset + chunkSize;
+                int endOffset = i == _threads.Length ? dataModel.Data.Length : startOffset + chunkSize;
 
                 // Intitialize and start the tasks
-                _tasks[i] = new Task(() => ComputeData(dataModel, startOffset, endOffset, deltaTime));
-                _tasks[i].Start();
+                _threads[i] = new Thread(() => ComputeData(dataModel, startOffset, endOffset, deltaTime));
+                _threads[i].Start();
                 ComputationProgress?.Invoke(this, new ComputationProgressEventArgs(i + 1 + " threads started."));
             }
 
             // Await all threads completion
-            foreach (var task in _tasks)
+            foreach (var thread in _threads)
             {
-                await task;
+                thread.Join();
             }
 
             // End timer
@@ -63,7 +59,7 @@ namespace ComputePower.NBody.Computation
             var completed = new ComputationProgressEventArgs();
             completed.Progress = 100.0;
             ComputationProgress?.Invoke(this, completed);
-            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Computation finished in " + (end - start).TotalSeconds + " seconds.", true));
+            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Computation finished in " + (end - start).TotalSeconds + " seconds."));
             return dataModel;
         }
 
@@ -81,9 +77,9 @@ namespace ComputePower.NBody.Computation
                 inputData.Data[i].ResetForce();
 
                 // Add force for all elements in the system
-                for (int j = 0; j<inputData.Data.Length; j++)
+                for (int j = 0; j < inputData.Data.Length; j++)
                 {
-                    if(i != j)
+                    if (i != j)
                         inputData.Data[i].AddForce(inputData.Data[j]);
                 }
                 // Update position & velocity
@@ -96,9 +92,7 @@ namespace ComputePower.NBody.Computation
                     if (temp - progress > progressPercentStep)
                     {
                         progress = temp;
-                        var args = new ComputationProgressEventArgs();
-                        args.Progress = progress;
-                        ComputationProgress?.Invoke(this, args);
+                        ComputationProgress?.Invoke(this, new ComputationProgressEventArgs(progress));
                     }
                 }
             }

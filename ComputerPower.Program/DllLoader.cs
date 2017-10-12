@@ -61,9 +61,9 @@ namespace ComputePower
         /// <param name="assemblyPath">Path to the assembly</param>
         /// <param name="assemblyName">Name of the assembly (without .dll)</param>
         /// <param name="methodName">Name of the method to call</param>
-        /// <param name="parameters">Parameters to pass the method</param>
+        /// <param name="progressHandler">EventHandler to recieve progress updates</param>
         /// <returns></returns>
-        public async Task<object> CallMethod(string assemblyPath, string assemblyName, string methodName, params object[] parameters)
+        public object CallMethod(string assemblyPath, string assemblyName, string methodName, EventHandler<EventArgs> progressHandler)
         {
             // Load the assembly by path (and name)
             Assembly computationAssembly = Assembly.LoadFrom(assemblyPath + "\\" + assemblyName + ".dll");
@@ -73,26 +73,20 @@ namespace ComputePower
             if(classType == null)
                 throw new Exception();
 
-            // Define parameters type in the method to call
-            Type[] parametersType = new Type[]{ typeof(object[]) };
+            //// Define parameters type in the method to call
+            //Type[] parametersType = new Type[]{ typeof(object[]) };
 
             // Retrieve the method
             var method = classType.GetMethod(methodName);
             if (method == null)
                 throw new Exception();
 
-            var pars = method.GetParameters();
-            foreach (var par in pars)
-            {
-                Console.WriteLine(par.ParameterType.Name);
-            }
-
             // Create an object of type "classType"
             var objectType = Activator.CreateInstance(classType);
             try
             {
                 // Invoke (call) the method and await the result (method is async)
-                var result = method.Invoke(objectType, new object[]{1, 2});
+                var result = method.Invoke(objectType, new object[] { progressHandler });
                 return result;
             }
             catch (Exception e)

@@ -5,7 +5,6 @@ namespace ComputePower.NBody.Computation.Models
     public class ComputationProgressEventArgs : EventArgs
     {
         public string Message { get; set; }
-        public bool ComputationCompleted { get; set; }
         public double Progress { get; set; }
 
         public ComputationProgressEventArgs()
@@ -17,10 +16,16 @@ namespace ComputePower.NBody.Computation.Models
             Message = message;
         }
 
-        public ComputationProgressEventArgs(string message, bool computationCompleted)
+        public ComputationProgressEventArgs(string message, double progress)
         {
             Message = message;
-            ComputationCompleted = computationCompleted;
+            Progress = progress;
+        }
+
+        public ComputationProgressEventArgs(double progress)
+        {
+            Progress = progress;
+            Message = progress + "% done.";
         }
 
     }
