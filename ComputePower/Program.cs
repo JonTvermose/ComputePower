@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using ComputePower.Http.Models;
 
@@ -22,24 +23,22 @@ namespace ComputePower.UserInterface
         {
 
             Console.WriteLine("Starting application...!");
-            Console.WriteLine("Enter URL: ");
+            Console.WriteLine("Enter Path: ");
             if ((Url = Console.ReadLine()).Length <= 1)
             {
-                Url = "http://tvermose.it/ksp/Gigantor(110t_LKO).craft";
+                Url = Directory.GetCurrentDirectory();
             }
-            Console.WriteLine("Enter filename: ");
+            Console.WriteLine("Enter assemblyname: ");
             if ((FileName = Console.ReadLine()).Length <= 1)
             {
-                FileName = "Gigantor.craft";
+                FileName = "ComputePower.NBody";
             }
             
             ProgressHandler += ProgressDownloadPrinter;
             ProgressHandler += ProgressCompletePrinter;
 
             var controller = new ComputePowerController();
-
-            string path = "";
-            await controller.Test(Url, path, FileName, ProgressHandler);
+            await controller.BeginComputation(Url, FileName, null);
             
             Console.WriteLine("Application ended. Press any key to close.");
         }

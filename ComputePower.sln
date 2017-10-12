@@ -5,11 +5,13 @@ VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputePower.UserInterface", "ComputePower\ComputePower.UserInterface.csproj", "{1A0D9941-1540-41C4-A18A-E90E6280B463}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputePower", "ComputerPower.Program\ComputePower.csproj", "{BDFC9094-C451-4D18-8F8E-DC52672E81CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputePower", "ComputerPower.Program\ComputePower.csproj", "{BDFC9094-C451-4D18-8F8E-DC52672E81CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputePower.Http", "ComputePower.Http\ComputePower.Http.csproj", "{5E9B5383-17F0-4FD0-81DA-1CCDACC12804}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputePower.Http", "ComputePower.Http\ComputePower.Http.csproj", "{5E9B5383-17F0-4FD0-81DA-1CCDACC12804}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputePower.Tests", "ComputePower.Tests\ComputePower.Tests.csproj", "{74D9A5ED-B0DF-44FD-8587-1C71F343A11E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputePower.Tests", "ComputePower.Tests\ComputePower.Tests.csproj", "{74D9A5ED-B0DF-44FD-8587-1C71F343A11E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputePower.NBody", "ComputePower.Computation\ComputePower.NBody.csproj", "{B7AC8BA5-ACCC-4414-8879-0BA091464DD0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{74D9A5ED-B0DF-44FD-8587-1C71F343A11E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{74D9A5ED-B0DF-44FD-8587-1C71F343A11E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{74D9A5ED-B0DF-44FD-8587-1C71F343A11E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7AC8BA5-ACCC-4414-8879-0BA091464DD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7AC8BA5-ACCC-4414-8879-0BA091464DD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7AC8BA5-ACCC-4414-8879-0BA091464DD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7AC8BA5-ACCC-4414-8879-0BA091464DD0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

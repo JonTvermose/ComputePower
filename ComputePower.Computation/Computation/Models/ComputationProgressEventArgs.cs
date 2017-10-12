@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ComputePower.Computation.Models
+namespace ComputePower.NBody.Computation.Models
 {
     public class ComputationProgressEventArgs : EventArgs
     {

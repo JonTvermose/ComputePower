@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ComputePower.Computation.Models
+namespace ComputePower.NBody.Computation.Models
 {
     public class Body
     {
@@ -8,6 +8,11 @@ namespace ComputePower.Computation.Models
         public double PX, PY, PZ;
         private double VX, VY, VZ;
         private double FX, FY, FZ;
+
+        // Must have empty constructor so we can deserialize from json to object type
+        public Body()
+        {
+        }
 
         public Body(double x, double y, double z)
         {

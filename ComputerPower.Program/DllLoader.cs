@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using System.Xml.XPath;
 using ComputePower.Computation.Models;
 
 namespace ComputePower
 {
-    /// <summary>
-    /// Original source: https://blogs.msdn.microsoft.com/jonathanswift/2006/10/03/dynamically-calling-an-unmanaged-dll-from-net-c/
-    /// Some modifications has been made to clean the code and make it usefull.
-    /// </summary>
     internal class DllLoader
     {
         #region Externally implemented methods from kernel32.dll
@@ -21,8 +20,6 @@ namespace ComputePower
         private static extern bool FreeLibrary(IntPtr hModule);
         #endregion
         
-        protected delegate bool ParralelDelegate(EventHandler<ComputationProgressEventArgs> progressHandler, params object[] inputObjects);
-
         private IntPtr _pDll;
 
         public DllLoader()
@@ -30,7 +27,8 @@ namespace ComputePower
             _pDll = IntPtr.Zero;
         }
 
-        protected ParralelDelegate LoadDll(string pathToDll, string methodName)
+        // Load a dll, get a function pointer to a named method and return it as an delegate
+        public ParralelDelegate LoadDll(string pathToDll, string methodName)
         {
             if (_pDll != IntPtr.Zero)
             {
@@ -55,6 +53,53 @@ namespace ComputePower
             {
                 FreeLibrary(_pDll);
             }
+        }
+
+        /// <summary>
+        /// Using reflection, load an assembly, call an method with parameters and return the values from the method.
+        /// </summary>
+        /// <param name="assemblyPath">Path to the assembly</param>
+        /// <param name="assemblyName">Name of the assembly (without .dll)</param>
+        /// <param name="methodName">Name of the method to call</param>
+        /// <param name="parameters">Parameters to pass the method</param>
+        /// <returns></returns>
+        public async Task<object> CallMethod(string assemblyPath, string assemblyName, string methodName, params object[] parameters)
+        {
+            // Load the assembly by path (and name)
+            Assembly computationAssembly = Assembly.LoadFrom(assemblyPath + "\\" + assemblyName + ".dll");
+
+            // Get the type of the computation class where the method is located
+            Type classType = computationAssembly.GetType(assemblyName + ".Computation.Computation");
+            if(classType == null)
+                throw new Exception();
+
+            // Define parameters type in the method to call
+            Type[] parametersType = new Type[]{ typeof(object[]) };
+
+            // Retrieve the method
+            var method = classType.GetMethod(methodName, parametersType);
+            if (method == null)
+                throw new Exception();
+
+            var pars = method.GetParameters();
+            foreach (var par in pars)
+            {
+                Console.WriteLine(par.ParameterType.Name);
+            }
+
+            // Create an object of type "classType"
+            var objectType = Activator.CreateInstance(classType);
+            try
+            {
+                // Invoke (call) the method and await the result (method is async)
+                var result = method.Invoke(objectType, parameters);
+                return result;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+
         }
     }
 }

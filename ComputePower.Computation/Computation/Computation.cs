@@ -1,45 +1,66 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
-using ComputePower.Computation.Models;
+using ComputePower.NBody.Computation.Models;
+using RGiesecke.DllExport;
+using System.Runtime.InteropServices;
 
-namespace ComputePower.Computation
+namespace ComputePower.NBody.Computation
 {
-    public class CpuComputation : IComputation
+    public class Computation : IComputation
     {
-        public Object Result { get; set; }
-
-        public event EventHandler<ComputationProgressEventArgs> ComputationProgress;
+        private event EventHandler<ComputationProgressEventArgs> ComputationProgress;
 
         private readonly Task[] _tasks;
 
-        public CpuComputation()
+        public Computation()
         {
-            //_tasks = new Task[Environment.ProcessorCount];
             _tasks = new Task[Environment.ProcessorCount];
-
         }
 
-        public async Task ExecuteAsync(params object[] inputObjects)
+        [DllExport("TestA", CallingConvention = CallingConvention.StdCall)]
+        public static int TestA(int a, int b)
         {
-            double deltaTime = 1.0;
+            return a + b;
+        }
+
+        [DllExport("TestB", CallingConvention = CallingConvention.StdCall)]
+        public int TestB(int a, int b)
+        {
+            return a + b;
+        }
+
+        public async Task<Object> ExecuteAsync(params object[] inputObjects)
+        {
+            DataModel dataModel;
+            double deltaTime;
             // Check that DataModel has been set, else generate random data
-            if(inputObjects == null || inputObjects.Length <= 1)
-                inputObjects = GenerateRandomData(1000); // !! N^2 complexity!
-
+            if (inputObjects == null)
+            {
+                dataModel = GenerateRandomData(1000); // !! N^2 complexity!
+                deltaTime = 1e11;
+            }
+            else
+            {
+                dataModel = (DataModel) inputObjects[0];
+                deltaTime = (double) inputObjects[1];
+                ComputationProgress += (EventHandler<ComputationProgressEventArgs>) inputObjects[2];
+            }
+            // Setup timing
             var start = DateTime.Now;
-            // How many objects should each task handle
-            int chunkSize = (((DataModel) inputObjects[1]).Data.Length / _tasks.Length);
 
+            // How many objects should each task handle
+            int chunkSize = (dataModel.Data.Length / _tasks.Length);
+
+            // Create the tasks and begin
             ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Creating " + _tasks.Length + " threads, each processing " + chunkSize + " elements."));
             for (int i = 0; i < _tasks.Length; i++)
             {
                 // Calculate offsets
                 int startOffset = chunkSize * i;
-                int endOffset = i == _tasks.Length ? ((DataModel)inputObjects[1]).Data.Length : startOffset + chunkSize;
+                int endOffset = i == _tasks.Length ? dataModel.Data.Length : startOffset + chunkSize;
 
                 // Intitialize and start the tasks
-                _tasks[i] = new Task(() => ComputeData(((DataModel)inputObjects[1]), startOffset, endOffset, deltaTime, i));
+                _tasks[i] = new Task(() => ComputeData(dataModel, startOffset, endOffset, deltaTime));
                 _tasks[i].Start();
                 ComputationProgress?.Invoke(this, new ComputationProgressEventArgs(i + 1 + " threads started."));
             }
@@ -50,14 +71,18 @@ namespace ComputePower.Computation
                 await task;
             }
 
+            // End timer
             var end = DateTime.Now;
 
             // Signal the event handler when all threads are completed and data is collected
+            var completed = new ComputationProgressEventArgs();
+            completed.Progress = 100.0;
+            ComputationProgress?.Invoke(this, completed);
             ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Computation finished in " + (end - start).TotalSeconds + " seconds.", true));
-            Result = inputObjects[1];
+            return dataModel;
         }
 
-        private void ComputeData(DataModel inputData, int startOffset, int endOffset, double deltaTime, int threadId)
+        private void ComputeData(DataModel inputData, int startOffset, int endOffset, double deltaTime)
         {
             ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Initiating computation from " + startOffset + " to " + endOffset));
             int chunkSize = endOffset - startOffset;
@@ -79,37 +104,34 @@ namespace ComputePower.Computation
                 // Update position & velocity
                 inputData.Data[i].Update(deltaTime);
 
-                // Calculate progress and invoke eventhandler
-                double temp = (double) (i - startOffset + 1) / (double) chunkSize * 100.0;
-                if (temp - progress > progressPercentStep)
+                if (startOffset == 0)
                 {
-                    progress = temp;
-                    var args = new ComputationProgressEventArgs();
-                    args.Progress = progress;
-                    args.ThreadId = threadId;
-                    ComputationProgress?.Invoke(this, args);
+                    // Calculate progress and invoke eventhandler
+                    double temp = (double)(i - startOffset + 1) / (double)chunkSize * 100.0;
+                    if (temp - progress > progressPercentStep)
+                    {
+                        progress = temp;
+                        var args = new ComputationProgressEventArgs();
+                        args.Progress = progress;
+                        ComputationProgress?.Invoke(this, args);
+                    }
                 }
             }
-            var completed = new ComputationProgressEventArgs();
-            completed.Progress = 100.0;
-            completed.ThreadId = threadId;
-            ComputationProgress?.Invoke(this, completed);
         }
 
         /// <summary>
         /// Generate random test data.
         /// </summary>
-        private object[] GenerateRandomData(int bodies)
+        private DataModel GenerateRandomData(int bodies)
         {
-            object[] output = new object[2];
             // Dont destroy the processor. N^2 complexity
             if (bodies > 50000)
                 bodies = 50000;
 
-            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Starting to generate random data: " + bodies));
+            DataModel output = new DataModel();
+            output.Data = new Body[bodies];
 
-            output[1] = new DataModel();
-            ((DataModel)output[1]).Data = new Body[bodies];
+            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Starting to generate random data: " + bodies));
 
             var solarMass = 1.98892e30;
             var earthMass = solarMass / 333000.0;
@@ -117,7 +139,7 @@ namespace ComputePower.Computation
 
             for (int i = 0; i < bodies; i++)
             {
-                ((DataModel)output[1]).Data[i] = new Body(earthDist, solarMass);
+                output.Data[i] = new Body(earthDist, solarMass);
             }
             ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Random data generated."));
             return output;
