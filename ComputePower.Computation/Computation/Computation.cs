@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Threading.Tasks;
 using ComputePower.NBody.Computation.Models;
-using RGiesecke.DllExport;
-using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace ComputePower.NBody.Computation
 {
     public class Computation : IComputation
     {
-        private event EventHandler<EventArgs> ComputationProgress;
-
         private readonly Thread[] _threads;
 
         public Computation()
@@ -22,9 +17,8 @@ namespace ComputePower.NBody.Computation
             DataModel dataModel;
             double deltaTime;
             // Check that DataModel has been set, else generate random data
-            dataModel = GenerateRandomData(1000); // !! N^2 complexity!
+            dataModel = GenerateRandomData(1000, progressHandler); // !! N^2 complexity!
             deltaTime = 1e11;
-            ComputationProgress += progressHandler;
 
             // Setup timing
             var start = DateTime.Now;
@@ -33,7 +27,7 @@ namespace ComputePower.NBody.Computation
             int chunkSize = (dataModel.Data.Length / _threads.Length);
 
             // Create the tasks and begin
-            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Creating " + _threads.Length + " threads, each processing " + chunkSize + " elements."));
+            progressHandler?.Invoke(this, new ComputationProgressEventArgs("Creating " + _threads.Length + " threads, each processing " + chunkSize + " elements."));
             for (int i = 0; i < _threads.Length; i++)
             {
                 // Calculate offsets
@@ -41,9 +35,10 @@ namespace ComputePower.NBody.Computation
                 int endOffset = i == _threads.Length ? dataModel.Data.Length : startOffset + chunkSize;
 
                 // Intitialize and start the tasks
-                _threads[i] = new Thread(() => ComputeData(dataModel, startOffset, endOffset, deltaTime));
+                var i1 = i;
+                _threads[i] = new Thread(() => ComputeData(dataModel, startOffset, endOffset, deltaTime, i1 == 0 ? progressHandler : null));
                 _threads[i].Start();
-                ComputationProgress?.Invoke(this, new ComputationProgressEventArgs(i + 1 + " threads started."));
+                progressHandler?.Invoke(this, new ComputationProgressEventArgs(i + 1 + " threads started."));
             }
 
             // Await all threads completion
@@ -58,14 +53,14 @@ namespace ComputePower.NBody.Computation
             // Signal the event handler when all threads are completed and data is collected
             var completed = new ComputationProgressEventArgs();
             completed.Progress = 100.0;
-            ComputationProgress?.Invoke(this, completed);
-            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Computation finished in " + (end - start).TotalSeconds + " seconds."));
+            progressHandler?.Invoke(this, completed);
+            progressHandler?.Invoke(this, new ComputationProgressEventArgs("Computation finished in " + (end - start).TotalSeconds + " seconds."));
             return dataModel;
         }
 
-        private void ComputeData(DataModel inputData, int startOffset, int endOffset, double deltaTime)
+        private void ComputeData(DataModel inputData, int startOffset, int endOffset, double deltaTime, EventHandler<EventArgs> progressHandler)
         {
-            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Initiating computation from " + startOffset + " to " + endOffset));
+            progressHandler?.Invoke(this, new ComputationProgressEventArgs("Initiating computation from " + startOffset + " to " + endOffset));
             int chunkSize = endOffset - startOffset;
             double progress = 0.0;
             double progressPercentStep = 5.0; // How often should the eventhandler be invoked with progress updates?
@@ -92,7 +87,7 @@ namespace ComputePower.NBody.Computation
                     if (temp - progress > progressPercentStep)
                     {
                         progress = temp;
-                        ComputationProgress?.Invoke(this, new ComputationProgressEventArgs(progress));
+                        progressHandler?.Invoke(this, new ComputationProgressEventArgs(progress));
                     }
                 }
             }
@@ -101,7 +96,7 @@ namespace ComputePower.NBody.Computation
         /// <summary>
         /// Generate random test data.
         /// </summary>
-        private DataModel GenerateRandomData(int bodies)
+        private DataModel GenerateRandomData(int bodies, EventHandler<EventArgs> progressHandler)
         {
             // Dont destroy the processor. N^2 complexity
             if (bodies > 50000)
@@ -110,7 +105,7 @@ namespace ComputePower.NBody.Computation
             DataModel output = new DataModel();
             output.Data = new Body[bodies];
 
-            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Starting to generate random data: " + bodies));
+            progressHandler?.Invoke(this, new ComputationProgressEventArgs("Starting to generate random data: " + bodies));
 
             var solarMass = 1.98892e30;
             var earthMass = solarMass / 333000.0;
@@ -120,7 +115,7 @@ namespace ComputePower.NBody.Computation
             {
                 output.Data[i] = new Body(earthDist, solarMass);
             }
-            ComputationProgress?.Invoke(this, new ComputationProgressEventArgs("Random data generated."));
+            progressHandler?.Invoke(this, new ComputationProgressEventArgs("Random data generated."));
             return output;
         }
     }
