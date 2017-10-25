@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.16
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputePower.UserInterface", "ComputePower\ComputePower.UserInterface.csproj", "{1A0D9941-1540-41C4-A18A-E90E6280B463}"
 EndProject
@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputePower.Http", "Comput
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputePower.Tests", "ComputePower.Tests\ComputePower.Tests.csproj", "{74D9A5ED-B0DF-44FD-8587-1C71F343A11E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputePower.NBody", "ComputePower.Computation\ComputePower.NBody.csproj", "{B7AC8BA5-ACCC-4414-8879-0BA091464DD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputePower.NBody", "ComputePower.Computation\ComputePower.NBody.csproj", "{B7AC8BA5-ACCC-4414-8879-0BA091464DD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputePower.WPF", "ComputePower.WPF\ComputePower.WPF.csproj", "{75D32996-BA02-425E-B8E5-04BF1FB3D5FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{B7AC8BA5-ACCC-4414-8879-0BA091464DD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7AC8BA5-ACCC-4414-8879-0BA091464DD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7AC8BA5-ACCC-4414-8879-0BA091464DD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75D32996-BA02-425E-B8E5-04BF1FB3D5FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75D32996-BA02-425E-B8E5-04BF1FB3D5FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75D32996-BA02-425E-B8E5-04BF1FB3D5FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75D32996-BA02-425E-B8E5-04BF1FB3D5FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
