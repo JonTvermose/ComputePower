@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -74,6 +77,35 @@ namespace ComputePower
             // Save results to a file
             FileSaver fileSaver = new FileSaver();
             fileSaver.SerializeAndSaveFile(result, Directory.GetCurrentDirectory(), assemblyName);
+        }
+
+        // Download the list of projects and parse them to objects
+        public ObservableCollection<Project> DownloadProjects(EventHandler<ProgressEventArgs> progressHandler)
+        {
+            // Download & return list - TODO
+
+            progressHandler.Invoke(this, new ProgressEventArgs(616));
+            var list = new List<Project>()
+            {
+                new Project
+                {
+                    Name = "Comet search",
+                    Description = "A seach for comets in our solar system",
+                    DllUrl = "",
+                    WebsiteUrl = "http://nasa.org",
+                    DllName = "ComputePower.CPUComputation"
+                },
+                new Project
+                {
+                    Name = "Asteroid search",
+                    Description = "A seach for asteroids in our solar system",
+                    DllUrl = "",
+                    WebsiteUrl = "http://nasa.org",
+                    DllName = "ComputePower.CPUComputation"
+                }
+            };
+            progressHandler.Invoke(this, new ProgressEventArgs(100, "Download complete", true));
+            return new ObservableCollection<Project>(list);
         }
     }
 }

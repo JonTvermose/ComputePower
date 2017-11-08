@@ -5,21 +5,65 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ComputePower.WPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        ResizeMode="NoResize"
+        Title="ComputePower" Height="500" Width="900">
     <Grid>
-        <Label x:Name="ComputeLabel" Content="{Binding Path=ProgressText}" HorizontalAlignment="Left" Margin="179,260,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="BeginButton" Content="Begin Computation" HorizontalAlignment="Left" Margin="179,204,0,0" VerticalAlignment="Top" Width="175" Height="25" Click="BeginComputation"/>
-        <ProgressBar x:Name="ProgressBar" HorizontalAlignment="Left" Height="25" Margin="179,260,0,0" VerticalAlignment="Top" Width="175" Minimum="0" Maximum="100" Value="{Binding Path=Progress}"/>
-        <Label Visibility="{Binding ElementName=ProgressBar, Path=Visibility}" Content="{Binding ElementName=ProgressBar, Path=Value}" ContentStringFormat=" {0:0}%" HorizontalAlignment="Center" VerticalAlignment="Center" Height="25" Width="50" Margin="246,260,232.4,35.8"/>
-        <ComboBox x:Name="ProjectsComboBox" HorizontalAlignment="Left" Margin="133,32,0,0" VerticalAlignment="Top" Width="120">
-            <ComboBox.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Name}" />
-                    </StackPanel>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
-        <Label Content="Choose project:" HorizontalAlignment="Left" Margin="26,32,0,0" VerticalAlignment="Top"/>
+        <StackPanel Orientation="Horizontal">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="Auto" MinHeight="100" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="30" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="400" />
+                </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="1" Grid.Row="1" x:Name="ProjectDesc" BorderThickness="0" Margin="10,10,10,10" MaxWidth="500" Text="{Binding ElementName=ProjectsComboBox, Path=SelectedValue.Description}" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" IsReadOnly="True"/>
+                <Label Grid.Column="1" Grid.Row="4" x:Name="ComputeLabel" Content="{Binding Path=ProgressText}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="30"/>
+                <Button Grid.Column="1" Grid.Row="3" x:Name="BeginButton" Content="Begin Computation" HorizontalAlignment="Left" VerticalAlignment="Top" Width="175" Height="30" Click="BeginComputation" IsEnabled="{Binding ElementName=ProjectsComboBox, Path=SelectedValue.IsDllDownloaded}"/>
+                <ProgressBar Grid.Column="1" Grid.Row="4" x:Name="ProgressBar" HorizontalAlignment="Left" VerticalAlignment="Top" Width="175" Minimum="0" Maximum="100" Value="{Binding Path=Progress}" Height="30"/>
+                <Label Grid.Column="1" Grid.Row="4" Visibility="{Binding ElementName=ProgressBar, Path=Visibility}" Content="{Binding ElementName=ProgressBar, Path=Value}" ContentStringFormat=" {0:0}%" HorizontalAlignment="Left" VerticalAlignment="Center" Height="25" Width="50"/>
+                <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+                    <ComboBox x:Name="ProjectsComboBox" ItemsSource="{Binding Path=Projects}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="175" Height="30" DropDownClosed="ProjectsComboBox_OnDropDownClosed">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Name}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <Grid>
+                        <ProgressBar x:Name="ProjectsProgressBar" HorizontalAlignment="Left" VerticalAlignment="Top" Width="175" Minimum="0" Maximum="100" IsIndeterminate="True" Height="30"/>
+                        <Label x:Name="ProjectsDownloadLabel" Content="{Binding Path=ProjectsProgress}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+
+                <Label Grid.Column="0" Grid.Row="0" Content="Project:" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <Label Grid.Column="0" Grid.Row="1" Content="Project description:" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            </Grid>
+            <Grid Width="300" Height="470">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                    <RowDefinition Height="430" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Content="Log:" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <ScrollViewer Grid.Row="1" Height="Auto">
+                    <ItemsControl ItemsSource="{Binding Path=ResultList}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </StackPanel>
     </Grid>
+    
 </Window>

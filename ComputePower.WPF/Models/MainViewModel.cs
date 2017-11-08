@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+using ComputePower.Http.Models;
 
 namespace ComputePower.WPF.Models
 {
@@ -15,6 +12,35 @@ namespace ComputePower.WPF.Models
 
         private string _progressText;
         private double _progress;
+        private string _projectsProgress;
+        private ObservableCollection<Project> _projects;
+        private ObservableCollection<TextHolder> _resultList;
+
+        public ObservableCollection<TextHolder> ResultList
+        {
+            get { return _resultList; }
+            set
+            {
+                if (value != _resultList)
+                {
+                    _resultList = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public ObservableCollection<Project> Projects
+        {
+            get { return _projects; }
+            set
+            {
+                if (value != _projects)
+                {
+                    _projects = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public string ProgressText
         {
@@ -24,6 +50,19 @@ namespace ComputePower.WPF.Models
                 if (value != _progressText)
                 {
                     _progressText = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string ProjectsProgress
+        {
+            get { return _projectsProgress; }
+            set
+            {
+                if (value != _projectsProgress)
+                {
+                    _projectsProgress = value;
                     OnPropertyChanged();
                 }
             }
@@ -45,7 +84,9 @@ namespace ComputePower.WPF.Models
         public MainViewModel()
         {
             _progress = 0;
-            _progressText = "Placeholder text here";
+            _progressText = "";
+            _projects = new ObservableCollection<Project>();
+            _resultList = new ObservableCollection<TextHolder>();
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
