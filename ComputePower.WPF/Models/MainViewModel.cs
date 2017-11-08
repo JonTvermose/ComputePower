@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace ComputePower.WPF.Models
 {
@@ -13,7 +14,7 @@ namespace ComputePower.WPF.Models
         public event PropertyChangedEventHandler PropertyChanged;
 
         private string _progressText;
-        private int _progress;
+        private double _progress;
 
         public string ProgressText
         {
@@ -28,12 +29,12 @@ namespace ComputePower.WPF.Models
             }
         }
 
-        public int Progress
+        public double Progress
         {
             get { return _progress; }
             set
             {
-                if (value != _progress)
+                if (Math.Abs(value - _progress) > 0.01)
                 {
                     _progress = value;
                     OnPropertyChanged();
@@ -51,5 +52,6 @@ namespace ComputePower.WPF.Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
     }
 }

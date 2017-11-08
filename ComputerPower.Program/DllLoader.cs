@@ -65,9 +65,11 @@ namespace ComputePower
         /// <returns></returns>
         public object CallMethod(string assemblyPath, string assemblyName, string methodName, EventHandler<EventArgs> progressHandler)
         {
-            // Load the assembly by path (and name)
-            Assembly computationAssembly = Assembly.LoadFrom(assemblyPath + "\\" + assemblyName + ".dll");
+            var filepath = assemblyPath + "\\" + assemblyName + ".dll";
 
+            // Load the assembly by path (and name)
+            Assembly computationAssembly = Assembly.LoadFile(filepath);
+            
             // Get the type of the computation class where the method is located
             Type classType = computationAssembly.GetType(assemblyName + ".Computation.Computation");
             if(classType == null)
@@ -78,6 +80,7 @@ namespace ComputePower
 
             // Retrieve the method
             var method = classType.GetMethod(methodName);
+
             if (method == null)
                 throw new Exception();
 

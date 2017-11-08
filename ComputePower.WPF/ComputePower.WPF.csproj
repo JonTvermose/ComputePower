@@ -100,5 +100,10 @@
       <Name>ComputePower</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+  <PackageReference Include="Legacy2CPSWorkaround" Version="1.0.0">
+    <PrivateAssets>All</PrivateAssets>
+  </PackageReference>
+</ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

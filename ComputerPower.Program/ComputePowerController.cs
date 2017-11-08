@@ -57,14 +57,14 @@ namespace ComputePower
             return dllLoader.LoadDll(dllPath, methodName);
         }
 
-        public async Task<bool> BeginComputation(string assemblyPath, string assemblyName, params object[] dataObjects)
+        public void BeginComputation(string assemblyPath, string assemblyName, EventHandler<EventArgs> progressUpdateEventHandler)
         {
             object result = null;
             try
             {
                 // Load the assembly and begin computation
                 DllLoader dllLoader = new DllLoader();
-                result = dllLoader.CallMethod(assemblyPath, assemblyName, "Execute", ComputationProgressWriter);
+                result = dllLoader.CallMethod(assemblyPath, assemblyName, "Execute", progressUpdateEventHandler);
             }
             catch (Exception e)
             {
@@ -74,22 +74,6 @@ namespace ComputePower
             // Save results to a file
             FileSaver fileSaver = new FileSaver();
             fileSaver.SerializeAndSaveFile(result, Directory.GetCurrentDirectory(), assemblyName);
-
-            return true;
-        }
-
-        private void ComputationProgressWriter(object sender, EventArgs args)
-        {
-            double progress = args.GetType().GetProperty("Progress") != null ? (double) args.GetType().GetProperty("Progress").GetValue(args, null) : 0.0;
-            string message = (string) args.GetType().GetProperty("Message")?.GetValue(args, null);
-            if (progress < 0.1 && message != null)
-            {
-                Console.WriteLine(message);
-            }
-            else
-            {
-                Console.WriteLine("Thread progress: {0}", progress);
-            }
         }
     }
 }
