@@ -32,6 +32,7 @@ namespace ComputePower.WPF
         private readonly MainViewModel _mainViewModel;
         private readonly ProgressBar _progressBar;
         private readonly Button _beginButton;
+        private readonly Button _downloadDllButton;
         private readonly Label _computeLabel;
         private readonly ComboBox _projectsComboBox;
 
@@ -46,18 +47,21 @@ namespace ComputePower.WPF
             _computePowerController = new ComputePowerController();
             _progressBar = (ProgressBar) this.FindName("ProgressBar");
             _beginButton = (Button) this.FindName("BeginButton");
+            _downloadDllButton = (Button) this.FindName("DllDownloadButton");
             _computeLabel = (Label) this.FindName("ComputeLabel");
             _projectsComboBox = (ComboBox) this.FindName("ProjectsComboBox");
 
             _progressBar.Visibility = Visibility.Hidden;
             _computeLabel.Visibility = Visibility.Hidden;
+            _downloadDllButton.Visibility = Visibility.Hidden;
             _beginButton.IsEnabled = false;
             _projectsComboBox.IsEnabled = false;
             _isComputing = false;
-            GetProject();
+
+            GetProjects();
         }
 
-        public async Task GetProject()
+        public async Task GetProjects()
         {
             _mainViewModel.Projects = await _computePowerController.DownloadProjects(UpdateDownloadProgress);
         }
@@ -92,7 +96,7 @@ namespace ComputePower.WPF
             ToggleComputeButton();
             var directory = AppDomain.CurrentDomain.BaseDirectory;
 #if DEBUG
-            // remove the \\bin\\debug part of directory
+            // remove the \\bin\\debug part of directory if we're running in Visual Studio
             directory = directory.Substring(0, directory.Length - 11);
 #endif
             var project = ((Project) _projectsComboBox.SelectedValue);
@@ -144,11 +148,16 @@ namespace ComputePower.WPF
                     prgsBar.Visibility = Visibility.Hidden;
                     var prgsText = (Label) FindName("ProjectsDownloadLabel");
                     prgsText.Visibility = Visibility.Hidden;
-                    _projectsComboBox.IsEnabled = true;
+                    _mainViewModel.ResultList.Add(new TextHolder { Text = args.Message });
+                }
+                else if (Math.Abs(args.BytesRead) > 0.00001)
+                {
+                    _mainViewModel.ProjectsProgress = args.BytesRead + "kb downloaded";
+                    _mainViewModel.ResultList.Add(new TextHolder {Text = args.BytesRead + "kb downloaded"});
                 }
                 else
                 {
-                    _mainViewModel.ProjectsProgress = args.BytesRead + "kb downloaded";
+                    _mainViewModel.ResultList.Add(new TextHolder { Text = args.Message });
                 }
             });
 
@@ -156,12 +165,56 @@ namespace ComputePower.WPF
 
         private void ProjectsComboBox_OnDropDownClosed(object sender, EventArgs e)
         {
+            _downloadDllButton.Visibility = Visibility.Hidden;
+
             var project = (Project) _projectsComboBox.SelectedValue;
             if (project != null)
             {
-                project.IsDllDownloaded = true;
+                _downloadDllButton.IsEnabled = !project.IsDllDownloaded;
+
+                if (!project.IsDllDownloaded)
+                {
+                    _downloadDllButton.Visibility = Visibility.Visible;
+                }
                 _beginButton.IsEnabled = _isComputing ? false : project.IsDllDownloaded;
             }
+        }
+
+        private void DownloadDll(object sender, RoutedEventArgs routedEventArgs)
+        {
+            _downloadDllButton.IsEnabled = false;
+
+            var prgsBar = (ProgressBar)FindName("ProjectsProgressBar");
+            prgsBar.Visibility = Visibility.Visible;
+
+            var project = (Project)_projectsComboBox.SelectedValue;
+            _computePowerController.DownloadProjectDll(UpdateDllDownloadProgress, project.DllUrl, project.DllName);
+        }
+
+        public void UpdateDllDownloadProgress(object sender, ProgressEventArgs args)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (args.IsComplete)
+                {
+                    _downloadDllButton.Visibility = Visibility.Hidden;
+                    var prgsBar = (ProgressBar)FindName("ProjectsProgressBar");
+                    prgsBar.Visibility = Visibility.Hidden;
+                    _mainViewModel.ResultList.Add(new TextHolder { Text = args.Message });
+                    var project = (Project)_projectsComboBox.SelectedValue;
+                    project.IsDllDownloaded = true;
+                    _beginButton.IsEnabled = true;
+                }
+                else if (Math.Abs(args.BytesRead) > 0.00001)
+                {
+                    _mainViewModel.ProjectsProgress = args.BytesRead + "kb downloaded";
+                    _mainViewModel.ResultList.Add(new TextHolder { Text = args.BytesRead + "kb downloaded" }); // TODO this may not be needed
+                }
+                else
+                {
+                    _mainViewModel.ResultList.Add(new TextHolder { Text = args.Message });
+                }
+            });
         }
     }
     

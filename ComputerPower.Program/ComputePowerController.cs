@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Configuration;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using ComputePower.Helpers;
 using ComputePower.Http;
@@ -84,6 +85,7 @@ namespace ComputePower
             string path = Directory.GetCurrentDirectory();
             var url = ConfigurationManager.AppSettings.Get("projectsUrl");
             var fileName = ConfigurationManager.AppSettings.Get("projectsName");
+            downloadManager.Progress += progressHandler;
             var result = await downloadManager.DownloadAndSaveFile(url, path, fileName);
 
             if (!result)
@@ -97,7 +99,17 @@ namespace ComputePower
             var fileLoader = new FileLoader<Project[]>();
             Project[] projects;
             fileLoader.LoadFromFileSystem(filePath, out projects);
+            progressHandler?.Invoke(this, new ProgressEventArgs(0.0, "File loaded into memory."));
             return new ObservableCollection<Project>(projects);
         }
+
+        public async Task<bool> DownloadProjectDll(EventHandler<ProgressEventArgs> progressHandler, string dllUrl, string fileName)
+        {
+            var downloadManager = new DownloadManager();
+            string path = Directory.GetCurrentDirectory();
+            downloadManager.Progress += progressHandler;
+            return await downloadManager.DownloadAndSaveFile(dllUrl, path, fileName);
+        }
+
     }
 }
