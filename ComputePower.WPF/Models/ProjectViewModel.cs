@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using ComputePower.Models;
 using ComputePower.WPF.Annotations;
 
 namespace ComputePower.WPF.Models
@@ -102,16 +101,16 @@ namespace ComputePower.WPF.Models
         }
 
         // Usage: var projectViewModel = (ProjectViewModel) project;
-        public static explicit operator ProjectViewModel(Project project)
-        {
-            ProjectViewModel pvm = new ProjectViewModel();
-            pvm.IsDllDownloaded = project.IsDllDownloaded;
-            pvm.Description = project.Description;
-            pvm.DllName = project.DllName;
-            pvm.DllUrl = project.DllUrl;
-            pvm.Name = project.Name;
-            pvm.WebsiteUrl = project.WebsiteUrl;
-            return pvm;
-        }
+        //public static explicit operator ProjectViewModel(Project project)
+        //{
+        //    ProjectViewModel pvm = new ProjectViewModel();
+        //    pvm.IsDllDownloaded = project.IsDllDownloaded;
+        //    pvm.Description = project.Description;
+        //    pvm.DllName = project.DllName;
+        //    pvm.DllUrl = project.DllUrl;
+        //    pvm.Name = project.Name;
+        //    pvm.WebsiteUrl = project.WebsiteUrl;
+        //    return pvm;
+        //}
     }
 }

@@ -14,6 +14,20 @@ namespace ComputePower.WPF.Models
         private string _projectsProgress;
         private ObservableCollection<ProjectViewModel> _projects;
         private ObservableCollection<TextHolder> _resultList;
+        private bool _isComputing;
+
+        public bool IsComputing
+        {
+            get { return _isComputing; }
+            set
+            {
+                if (value != _isComputing)
+                {
+                    _isComputing = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public ObservableCollection<TextHolder> ResultList
         {

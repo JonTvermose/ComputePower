@@ -26,7 +26,26 @@
                 </Grid.ColumnDefinitions>
                 <TextBox Grid.Column="1" Grid.Row="1" x:Name="ProjectDesc" BorderThickness="0" Margin="10,10,10,10" MaxWidth="500" Text="{Binding ElementName=ProjectsComboBox, Path=SelectedValue.Description}" HorizontalAlignment="Left" VerticalAlignment="Top" TextWrapping="Wrap" IsReadOnly="True"/>
                 <Label Grid.Column="1" Grid.Row="4" x:Name="ComputeLabel" Content="{Binding Path=ProgressText}" HorizontalAlignment="Left" VerticalAlignment="Top" Height="30"/>
-                <Button Grid.Column="1" Grid.Row="3" x:Name="BeginButton" Content="Begin Computation" HorizontalAlignment="Left" VerticalAlignment="Top" Width="175" Height="30" Click="BeginComputation" IsEnabled="{Binding ElementName=ProjectsComboBox, Path=SelectedValue.IsDllDownloaded}"/>
+                
+                <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal">
+                    <Button x:Name="BeginButton" Content="Begin Computation" HorizontalAlignment="Left" VerticalAlignment="Top" Width="175" Height="30" Click="BeginComputation" IsEnabled="{Binding ElementName=ProjectsComboBox, Path=SelectedValue.IsDllDownloaded}"/>
+                    <Button x:Name="StopButton" Content="Stop Computation" HorizontalAlignment="Left" VerticalAlignment="Top" Width="175" Height="30" Click="StopComputation" IsEnabled="{Binding ElementName=BeginButton, Path=IsEnabled, Converter={StaticResource InverseBooleanConverter}}">
+                        <Button.Style>
+                            <Style>
+                                <Setter Property="Control.Visibility" Value="Visible" />
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding ElementName=BeginButton, Path=IsEnabled}" Value="true" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Control.Visibility" Value="Hidden" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+                
                 <Button Grid.Column="1" Grid.Row="2" x:Name="DllDownloadButton" Content="Download Project" HorizontalAlignment="Left" VerticalAlignment="Top" Width="175" Height="30" Click="DownloadDll" IsEnabled="{Binding ElementName=ProjectsComboBox, Path=SelectedValue.IsDllDownloaded, Converter={StaticResource InverseBooleanConverter}}"/>
                 <ProgressBar Grid.Column="1" Grid.Row="4" x:Name="ProgressBar" HorizontalAlignment="Left" VerticalAlignment="Top" Width="175" Minimum="0" Maximum="100" Value="{Binding Path=Progress}" Height="30"/>
                 <Label Grid.Column="1" Grid.Row="4" Visibility="{Binding ElementName=ProgressBar, Path=Visibility}" Content="{Binding ElementName=ProgressBar, Path=Value}" ContentStringFormat=" {0:0}%" HorizontalAlignment="Left" VerticalAlignment="Center" Height="25" Width="50"/>
