@@ -6,6 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Speech.Synthesis;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,12 +64,13 @@ namespace ComputePower.WPF
 
         public async Task GetProjects()
         {
-            _mainViewModel.Projects = await _computePowerController.DownloadProjects(UpdateDownloadProgress);
+            var projects = await _computePowerController.DownloadProjects(UpdateDownloadProgress);
+            _mainViewModel.Projects = new ObservableCollection<ProjectViewModel>(projects.Select(x => (ProjectViewModel) x));
         }
 
         public void IsComputing()
         {
-            _beginButton.IsEnabled = _isComputing ? false : ((Project) _projectsComboBox.SelectedValue).IsDllDownloaded;
+            _beginButton.IsEnabled = _isComputing ? false : ((ProjectViewModel) _projectsComboBox.SelectedValue).IsDllDownloaded;
             _projectsComboBox.IsEnabled = !_isComputing;
         }
 
@@ -99,7 +101,7 @@ namespace ComputePower.WPF
             // remove the \\bin\\debug part of directory if we're running in Visual Studio
             directory = directory.Substring(0, directory.Length - 11);
 #endif
-            var project = ((Project) _projectsComboBox.SelectedValue);
+            var project = ((ProjectViewModel) _projectsComboBox.SelectedValue);
             if (project == null)
                 return;
             var dllName = project.DllName;
@@ -132,6 +134,8 @@ namespace ComputePower.WPF
                         _isComputing = !_isComputing;
                         IsComputing();
                         ToggleComputeButton();
+                        var synthesizer = new SpeechSynthesizer();
+                        synthesizer.SpeakAsync("Computation complete");
                     }
                 }
             });
@@ -167,7 +171,7 @@ namespace ComputePower.WPF
         {
             _downloadDllButton.Visibility = Visibility.Hidden;
 
-            var project = (Project) _projectsComboBox.SelectedValue;
+            var project = (ProjectViewModel) _projectsComboBox.SelectedValue;
             if (project != null)
             {
                 _downloadDllButton.IsEnabled = !project.IsDllDownloaded;
@@ -187,7 +191,7 @@ namespace ComputePower.WPF
             var prgsBar = (ProgressBar)FindName("ProjectsProgressBar");
             prgsBar.Visibility = Visibility.Visible;
 
-            var project = (Project)_projectsComboBox.SelectedValue;
+            var project = (ProjectViewModel)_projectsComboBox.SelectedValue;
             _computePowerController.DownloadProjectDll(UpdateDllDownloadProgress, project.DllUrl, project.DllName);
         }
 
@@ -195,13 +199,20 @@ namespace ComputePower.WPF
         {
             Dispatcher.Invoke(() =>
             {
-                if (args.IsComplete)
+                if (args.Exception != null)
+                {
+                    var prgsBar = (ProgressBar)FindName("ProjectsProgressBar");
+                    prgsBar.Visibility = Visibility.Hidden;
+                    _mainViewModel.ResultList.Add(new TextHolder { Text = "ERROR: " + args.Exception.Message });
+                    _downloadDllButton.IsEnabled = true;
+                }
+                else if (args.IsComplete)
                 {
                     _downloadDllButton.Visibility = Visibility.Hidden;
                     var prgsBar = (ProgressBar)FindName("ProjectsProgressBar");
                     prgsBar.Visibility = Visibility.Hidden;
                     _mainViewModel.ResultList.Add(new TextHolder { Text = args.Message });
-                    var project = (Project)_projectsComboBox.SelectedValue;
+                    var project = (ProjectViewModel)_projectsComboBox.SelectedValue;
                     project.IsDllDownloaded = true;
                     _beginButton.IsEnabled = true;
                 }

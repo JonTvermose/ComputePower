@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ComputePower.Http.Models
+﻿namespace ComputePower.Models
 {
     public class Project
     {

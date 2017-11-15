@@ -13,7 +13,7 @@ namespace ComputePower.WPF.Models
         private string _progressText;
         private double _progress;
         private string _projectsProgress;
-        private ObservableCollection<Project> _projects;
+        private ObservableCollection<ProjectViewModel> _projects;
         private ObservableCollection<TextHolder> _resultList;
 
         public ObservableCollection<TextHolder> ResultList
@@ -29,7 +29,7 @@ namespace ComputePower.WPF.Models
             }
         }
 
-        public ObservableCollection<Project> Projects
+        public ObservableCollection<ProjectViewModel> Projects
         {
             get { return _projects; }
             set
@@ -85,7 +85,7 @@ namespace ComputePower.WPF.Models
         {
             _progress = 0;
             _progressText = "";
-            _projects = new ObservableCollection<Project>();
+            _projects = new ObservableCollection<ProjectViewModel>();
             _resultList = new ObservableCollection<TextHolder>();
         }
 

@@ -78,7 +78,7 @@ namespace ComputePower
         }
 
         // Download the list of projects and parse them to objects
-        public async Task<ObservableCollection<Project>> DownloadProjects(EventHandler<ProgressEventArgs> progressHandler)
+        public async Task<List<Project>> DownloadProjects(EventHandler<ProgressEventArgs> progressHandler)
         {
             // Download file
             var downloadManager = new DownloadManager();
@@ -99,8 +99,8 @@ namespace ComputePower
             var fileLoader = new FileLoader<Project[]>();
             Project[] projects;
             fileLoader.LoadFromFileSystem(filePath, out projects);
-            progressHandler?.Invoke(this, new ProgressEventArgs(0.0, "File loaded into memory."));
-            return new ObservableCollection<Project>(projects);
+            progressHandler?.Invoke(this, new ProgressEventArgs(0.0, "Files loaded into memory."));
+            return new List<Project>(projects);
         }
 
         public async Task<bool> DownloadProjectDll(EventHandler<ProgressEventArgs> progressHandler, string dllUrl, string fileName)
