@@ -8,7 +8,7 @@ namespace ComputePower.Http
 {
     public class DownloadManager
     {
-        public event EventHandler<ProgressEventArgs> Progress;
+        public event EventHandler<EventArgs> Progress;
 
         /// <summary>
         /// Download a file from a given URL and save said file to a given path and filename

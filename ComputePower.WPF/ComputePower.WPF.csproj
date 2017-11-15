@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="Models\MainViewModel.cs" />
     <Compile Include="Models\ProjectViewModel.cs" />
+    <Compile Include="Models\TextHolder.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
@@ -99,10 +100,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ComputePower.Http\ComputePower.Http.csproj">
-      <Project>{5E9B5383-17F0-4FD0-81DA-1CCDACC12804}</Project>
-      <Name>ComputePower.Http</Name>
-    </ProjectReference>
     <ProjectReference Include="..\ComputerPower.Program\ComputePower.csproj">
       <Project>{bdfc9094-c451-4d18-8f8e-dc52672e81cf}</Project>
       <Name>ComputePower</Name>

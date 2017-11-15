@@ -1,50 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Configuration;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using ComputePower.Helpers;
 using ComputePower.Http;
 using ComputePower.Http.Models;
+using ComputePower.Models;
 
 namespace ComputePower
 {
     public class ComputePowerController
     {
-        private readonly string _path;
-        private readonly string _fileName;
-
-        public ComputePowerController()
-        {
-            _path = @"C:\Users\Public\ComputePower";
-            _fileName = "data.json";
-        }
-
-        public void RunAutonomousProgram(string url, EventHandler<ProgressEventArgs> handler)
-        {
-            var downloadManager = new DownloadManager();
-            downloadManager.Progress += handler;
-            downloadManager.DownloadAndSaveFile(url, _path, _fileName);
-        }
-
-        public async Task TestB(string url, string path, string fileName, EventHandler<ProgressEventArgs> handler)
-        {
-            //FileLoader<DataModel> loader = new FileLoader<DataModel>();
-            //DataModel output = new DataModel();
-            //var filepath = Directory.GetCurrentDirectory() + "\\results.json";
-            //loader.LoadFromFileSystem(filepath, out output);
-
-            //IComputation c = new CpuComputation();
-            //c.ComputationProgress += ComputationProgressWriter;
-            //await c.ExecuteAsync(output, 1e11);
-            
-            //FileSaver fileSaver = new FileSaver();
-            //fileSaver.SerializeAndSaveFile(c.Result, path);
-        }
-
-        public async Task<bool> DownloadFile(string url, string fileName, EventHandler<ProgressEventArgs> handler)
+        public async Task<bool> DownloadFile(string url, string fileName, EventHandler<EventArgs> handler)
         {
             var downloadManager = new DownloadManager();
             downloadManager.Progress += handler;
@@ -78,7 +46,7 @@ namespace ComputePower
         }
 
         // Download the list of projects and parse them to objects
-        public async Task<List<Project>> DownloadProjects(EventHandler<ProgressEventArgs> progressHandler)
+        public async Task<List<Project>> DownloadProjects(EventHandler<EventArgs> progressHandler)
         {
             // Download file
             var downloadManager = new DownloadManager();
@@ -103,7 +71,7 @@ namespace ComputePower
             return new List<Project>(projects);
         }
 
-        public async Task<bool> DownloadProjectDll(EventHandler<ProgressEventArgs> progressHandler, string dllUrl, string fileName)
+        public async Task<bool> DownloadProjectDll(EventHandler<EventArgs> progressHandler, string dllUrl, string fileName)
         {
             var downloadManager = new DownloadManager();
             string path = Directory.GetCurrentDirectory();

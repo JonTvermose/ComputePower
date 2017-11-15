@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using ComputePower.Http.Models;
+using ComputePower.Models;
 using ComputePower.WPF.Annotations;
 
 namespace ComputePower.WPF.Models

@@ -19,7 +19,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using ComputePower.Http.Models;
 using ComputePower.WPF.Models;
 
 namespace ComputePower.WPF
@@ -141,27 +140,32 @@ namespace ComputePower.WPF
             });
         }
 
-        public void UpdateDownloadProgress(object sender, ProgressEventArgs args)
+        public void UpdateDownloadProgress(object sender, EventArgs args)
         {
+            // Use reflection to find the properties of he ProgressEventArgs
+            double bytesRead = args.GetType().GetProperty("BytesRead") != null ? (double)args.GetType().GetProperty("BytesRead").GetValue(args, null) : 0.0;
+            string message = (string)args.GetType().GetProperty("Message")?.GetValue(args, null);
+            bool isComplete = (bool)args.GetType().GetProperty("IsComplete")?.GetValue(args, null);
+
             Dispatcher.Invoke(() =>
             {
-                if (args.IsComplete)
+                if (isComplete)
                 {
                     _projectsComboBox.IsEnabled = true;
                     var prgsBar = (ProgressBar) FindName("ProjectsProgressBar");
                     prgsBar.Visibility = Visibility.Hidden;
                     var prgsText = (Label) FindName("ProjectsDownloadLabel");
                     prgsText.Visibility = Visibility.Hidden;
-                    _mainViewModel.ResultList.Add(new TextHolder { Text = args.Message });
+                    _mainViewModel.ResultList.Add(new TextHolder { Text = message });
                 }
-                else if (Math.Abs(args.BytesRead) > 0.00001)
+                else if (Math.Abs(bytesRead) > 0.00001)
                 {
-                    _mainViewModel.ProjectsProgress = args.BytesRead + "kb downloaded";
-                    _mainViewModel.ResultList.Add(new TextHolder {Text = args.BytesRead + "kb downloaded"});
+                    _mainViewModel.ProjectsProgress = bytesRead + "kb downloaded";
+                    _mainViewModel.ResultList.Add(new TextHolder {Text = bytesRead + "kb downloaded"});
                 }
                 else
                 {
-                    _mainViewModel.ResultList.Add(new TextHolder { Text = args.Message });
+                    _mainViewModel.ResultList.Add(new TextHolder { Text = message });
                 }
             });
 
@@ -195,35 +199,42 @@ namespace ComputePower.WPF
             _computePowerController.DownloadProjectDll(UpdateDllDownloadProgress, project.DllUrl, project.DllName);
         }
 
-        public void UpdateDllDownloadProgress(object sender, ProgressEventArgs args)
+        public void UpdateDllDownloadProgress(object sender, EventArgs args)
         {
+            // Use reflection to find the properties of he ProgressEventArgs
+            double bytesRead = args.GetType().GetProperty("BytesRead") != null ? (double)args.GetType().GetProperty("BytesRead").GetValue(args, null) : 0.0;
+            string message = (string)args.GetType().GetProperty("Message")?.GetValue(args, null);
+            bool isComplete = (bool)args.GetType().GetProperty("IsComplete")?.GetValue(args, null);
+            Exception exception = (Exception)args.GetType().GetProperty("Exception")?.GetValue(args, null);
+
+
             Dispatcher.Invoke(() =>
             {
-                if (args.Exception != null)
+                if (exception != null)
                 {
                     var prgsBar = (ProgressBar)FindName("ProjectsProgressBar");
                     prgsBar.Visibility = Visibility.Hidden;
-                    _mainViewModel.ResultList.Add(new TextHolder { Text = "ERROR: " + args.Exception.Message });
+                    _mainViewModel.ResultList.Add(new TextHolder { Text = "ERROR: " + exception.Message });
                     _downloadDllButton.IsEnabled = true;
                 }
-                else if (args.IsComplete)
+                else if (isComplete)
                 {
                     _downloadDllButton.Visibility = Visibility.Hidden;
                     var prgsBar = (ProgressBar)FindName("ProjectsProgressBar");
                     prgsBar.Visibility = Visibility.Hidden;
-                    _mainViewModel.ResultList.Add(new TextHolder { Text = args.Message });
+                    _mainViewModel.ResultList.Add(new TextHolder { Text = message });
                     var project = (ProjectViewModel)_projectsComboBox.SelectedValue;
                     project.IsDllDownloaded = true;
                     _beginButton.IsEnabled = true;
                 }
-                else if (Math.Abs(args.BytesRead) > 0.00001)
+                else if (Math.Abs(bytesRead) > 0.00001)
                 {
-                    _mainViewModel.ProjectsProgress = args.BytesRead + "kb downloaded";
-                    _mainViewModel.ResultList.Add(new TextHolder { Text = args.BytesRead + "kb downloaded" }); // TODO this may not be needed
+                    _mainViewModel.ProjectsProgress = bytesRead + "kb downloaded";
+                    _mainViewModel.ResultList.Add(new TextHolder { Text = bytesRead + "kb downloaded" }); // TODO this may not be needed
                 }
                 else
                 {
-                    _mainViewModel.ResultList.Add(new TextHolder { Text = args.Message });
+                    _mainViewModel.ResultList.Add(new TextHolder { Text = message });
                 }
             });
         }

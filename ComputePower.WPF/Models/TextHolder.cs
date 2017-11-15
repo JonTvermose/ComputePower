@@ -1,5 +1,5 @@
 ﻿
-namespace ComputePower.Http.Models
+namespace ComputePower.WPF.Models
 {
     public class TextHolder
     {
