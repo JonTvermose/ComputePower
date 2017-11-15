@@ -14,4 +14,8 @@
     <ProjectReference Include="..\ComputePower.Http\ComputePower.Http.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

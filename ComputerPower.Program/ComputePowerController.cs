@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Configuration;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using ComputePower.Computation.Models;
 using ComputePower.Helpers;
 using ComputePower.Http;
 using ComputePower.Http.Models;
-using Newtonsoft.Json;
 
 namespace ComputePower
 {
@@ -80,32 +77,27 @@ namespace ComputePower
         }
 
         // Download the list of projects and parse them to objects
-        public ObservableCollection<Project> DownloadProjects(EventHandler<ProgressEventArgs> progressHandler)
+        public async Task<ObservableCollection<Project>> DownloadProjects(EventHandler<ProgressEventArgs> progressHandler)
         {
-            // Download & return list - TODO
+            // Download file
+            var downloadManager = new DownloadManager();
+            string path = Directory.GetCurrentDirectory();
+            var url = ConfigurationManager.AppSettings.Get("projectsUrl");
+            var fileName = ConfigurationManager.AppSettings.Get("projectsName");
+            var result = await downloadManager.DownloadAndSaveFile(url, path, fileName);
 
-            progressHandler.Invoke(this, new ProgressEventArgs(616));
-            var list = new List<Project>()
+            if (!result)
             {
-                new Project
-                {
-                    Name = "Comet search",
-                    Description = "A seach for comets in our solar system",
-                    DllUrl = "",
-                    WebsiteUrl = "http://nasa.org",
-                    DllName = "ComputePower.CPUComputation"
-                },
-                new Project
-                {
-                    Name = "Asteroid search",
-                    Description = "A seach for asteroids in our solar system",
-                    DllUrl = "",
-                    WebsiteUrl = "http://nasa.org",
-                    DllName = "ComputePower.CPUComputation"
-                }
-            };
-            progressHandler.Invoke(this, new ProgressEventArgs(100, "Download complete", true));
-            return new ObservableCollection<Project>(list);
+                // TODO error handling
+                return null;
+            }
+
+            // Read and parse file
+            var filePath = path + fileName;
+            var fileLoader = new FileLoader<Project[]>();
+            Project[] projects;
+            fileLoader.LoadFromFileSystem(filePath, out projects);
+            return new ObservableCollection<Project>(projects);
         }
     }
 }

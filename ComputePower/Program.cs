@@ -38,7 +38,7 @@ namespace ComputePower.UserInterface
             ProgressHandler += ProgressCompletePrinter;
 
             var controller = new ComputePowerController();
-            await controller.BeginComputation(Url, FileName, null);
+            controller.BeginComputation(Url, FileName, null);
             
             Console.WriteLine("Application ended. Press any key to close.");
         }

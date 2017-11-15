@@ -54,8 +54,12 @@ namespace ComputePower.WPF
             _beginButton.IsEnabled = false;
             _projectsComboBox.IsEnabled = false;
             _isComputing = false;
+            GetProject();
+        }
 
-            _mainViewModel.Projects = _computePowerController.DownloadProjects(UpdateDownloadProgress);
+        public async Task GetProject()
+        {
+            _mainViewModel.Projects = await _computePowerController.DownloadProjects(UpdateDownloadProgress);
         }
 
         public void IsComputing()
