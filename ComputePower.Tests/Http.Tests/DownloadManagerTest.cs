@@ -1,5 +1,3 @@
-using System;
-using System.Net.Http;
 using System.Threading.Tasks;
 using ComputePower.Http;
 using Xunit;
@@ -29,14 +27,14 @@ namespace ComputePower.Tests.Http.Tests
             var fileName = "Gigantor.craft";
             var dlManager = new DownloadManager();
 
-            var ex = await Assert.ThrowsAsync<InvalidOperationException>(async () => await dlManager.DownloadAndSaveFile("", path, fileName));
-            Assert.IsType<InvalidOperationException>(ex);
+            var result = await dlManager.DownloadAndSaveFile("", path, fileName);
+            Assert.False(result);
 
-            var ex2 = await Assert.ThrowsAsync<ArgumentException>(async () => await dlManager.DownloadAndSaveFile(url, "", ""));
-            Assert.IsType<ArgumentException>(ex2);
+            result = await dlManager.DownloadAndSaveFile(url, "", "");
+            Assert.False(result);
 
-            var ex3 = await Assert.ThrowsAsync<HttpRequestException>(async () => await dlManager.DownloadAndSaveFile("http://incorrectUrl.tvermose.it", path, fileName));
-            Assert.IsType<HttpRequestException>(ex3);
+            result = await dlManager.DownloadAndSaveFile("http://incorrectUrl.tvermose.it", path, fileName);
+            Assert.False(result);
         }
     }
 }

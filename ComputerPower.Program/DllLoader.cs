@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using System.Xml.XPath;
-using ComputePower.Computation.Models;
+using ComputePower.Http.Models;
 
 namespace ComputePower
 {
+    public delegate Object ParralelDelegate(int a);
+
     internal class DllLoader
     {
         #region Externally implemented methods from kernel32.dll
@@ -94,6 +94,9 @@ namespace ComputePower
             }
             catch (Exception e)
             {
+                ProgressEventArgs args = new ProgressEventArgs(0, "Exception occured loading DLL");
+                args.Exception = e;
+                progressHandler?.Invoke(this, args);
                 return null;
             }
 

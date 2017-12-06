@@ -10,7 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ComputePower.Computation\ComputePower.NBody.csproj" />
     <ProjectReference Include="..\ComputePower.Http\ComputePower.Http.csproj" />
   </ItemGroup>
 

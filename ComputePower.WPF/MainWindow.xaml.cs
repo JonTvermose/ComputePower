@@ -87,8 +87,11 @@ namespace ComputePower.WPF
 
         public async Task GetProjects()
         {
-            var projects = (await _computePowerController.DownloadProjects(UpdateDownloadProgress)).AsQueryable().ProjectTo<ProjectViewModel>();
-            _mainViewModel.Projects = new ObservableCollection<ProjectViewModel>(projects);
+            var projects = (await _computePowerController.DownloadProjects(UpdateDownloadProgress))?.AsQueryable().ProjectTo<ProjectViewModel>();
+            if (projects != null)
+            {
+                _mainViewModel.Projects = new ObservableCollection<ProjectViewModel>(projects);
+            }
         }
 
         #endregion

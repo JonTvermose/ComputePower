@@ -12,20 +12,6 @@ namespace ComputePower
 {
     public class ComputePowerController
     {
-        public async Task<bool> DownloadFile(string url, string fileName, EventHandler<EventArgs> handler)
-        {
-            var downloadManager = new DownloadManager();
-            downloadManager.Progress += handler;
-            string path = Directory.GetCurrentDirectory();
-            return await downloadManager.DownloadAndSaveFile(url, path, fileName);
-        }
-
-        public ParralelDelegate LoadDllDelegate(string dllPath, string methodName)
-        {
-            DllLoader dllLoader = new DllLoader();
-            return dllLoader.LoadDll(dllPath, methodName);
-        }
-
         public void BeginComputation(string assemblyPath, string assemblyName, EventHandler<EventArgs> progressUpdateEventHandler)
         {
             object result = null;
@@ -33,11 +19,13 @@ namespace ComputePower
             {
                 // Load the assembly and begin computation
                 DllLoader dllLoader = new DllLoader();
-                result = dllLoader.CallMethod(assemblyPath, assemblyName, "Execute", progressUpdateEventHandler);
+                result = dllLoader.CallMethod(assemblyPath, assemblyName, ConfigurationManager.AppSettings.Get("MethodName"), progressUpdateEventHandler);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.StackTrace);
+                ProgressEventArgs args = new ProgressEventArgs(0, "Exception occured loading DLL");
+                args.Exception = e;
+                progressUpdateEventHandler?.Invoke(this, args);
             }
 
             // Save results to a file
@@ -58,7 +46,8 @@ namespace ComputePower
 
             if (!result)
             {
-                // TODO error handling
+                ProgressEventArgs args = new ProgressEventArgs(0, "An error occured downloading project list");
+                progressHandler?.Invoke(this, args);
                 return null;
             }
 
