@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using ComputePower.Http.Models;
 
-namespace ComputePower
+namespace ComputePower.Helpers
 {
     public delegate Object ParralelDelegate(int a);
 

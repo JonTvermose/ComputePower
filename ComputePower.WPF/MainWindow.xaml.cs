@@ -19,7 +19,7 @@ namespace ComputePower.WPF
     {
 
         #region Declarations
-        private readonly ComputePowerController _computePowerController;
+        private readonly IComputePowerController _computePowerController;
         private readonly MainViewModel _mainViewModel;
         private readonly ProgressBar _progressBar;
         private readonly Button _beginButton;

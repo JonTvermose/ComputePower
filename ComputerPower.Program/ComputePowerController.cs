@@ -10,7 +10,7 @@ using ComputePower.Models;
 
 namespace ComputePower
 {
-    public class ComputePowerController
+    public class ComputePowerController : IComputePowerController
     {
         public void BeginComputation(string assemblyPath, string assemblyName, EventHandler<EventArgs> progressUpdateEventHandler)
         {
