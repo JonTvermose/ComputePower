@@ -115,7 +115,7 @@ namespace ComputePower.WPF
             var dllName = project.DllName;
             _mainViewModel.ResultList.Add(new TextHolder { Text = "" });
             _mainViewModel.ResultList.Add(new TextHolder { Text = "Starting Project: " + project.Name });
-            var t = new Thread(() => _computePowerController.BeginComputation(directory, dllName, UpdateProgress));
+            var t = new Thread(() => _computePowerController.BeginComputation(project.Id, directory, dllName, UpdateProgress));
             t.Start();
         }
 
@@ -151,13 +151,15 @@ namespace ComputePower.WPF
         public void UpdateProgress(object sender, EventArgs args)
         {
             // Use reflection to find the properties of he ProgressEventArgs
-            double progress = args.GetType().GetProperty("Progress") != null ? (double)args.GetType().GetProperty("Progress").GetValue(args, null) : 0.0;
-            string message = (string)args.GetType().GetProperty("Message")?.GetValue(args, null);
+            double progress = args.GetType().GetProperty("Progress") != null
+                ? (double) args.GetType().GetProperty("Progress").GetValue(args, null)
+                : 0.0;
+            string message = (string) args.GetType().GetProperty("Message")?.GetValue(args, null);
 
             // Update UI, must use dispatcher as we are not on main thread
             Dispatcher.Invoke(() =>
             {
-                if (progress < 0.1 && message != null)
+                if (progress < 0.1 && message != null && message != "completed")
                 {
                     _mainViewModel.ProgressText = message;
                     _mainViewModel.ResultList.Add(new TextHolder { Text = message });
@@ -166,11 +168,11 @@ namespace ComputePower.WPF
                 {
                     _mainViewModel.ProgressText = "Progress: " + progress.ToString(CultureInfo.CurrentCulture) + "%";
                     _mainViewModel.Progress = progress;
-                    if (100 - progress < 0.01)
+                    if (!string.IsNullOrWhiteSpace(message) && message == "completed")
                     {
-                        var synthesizer = new SpeechSynthesizer();
-                        synthesizer.Rate = 2;
-                        synthesizer.SpeakAsync("Cycle complete");
+                        //var synthesizer = new SpeechSynthesizer();
+                        //synthesizer.Rate = 2;
+                        //synthesizer.SpeakAsync("Cycle complete");
                         _isComputing = !_isComputing;
                         IsComputing();
                         ToggleComputeButton();
@@ -262,11 +264,14 @@ namespace ComputePower.WPF
         {
             _downloadDllButton.IsEnabled = false;
 
-            var prgsBar = (ProgressBar)FindName("ProjectsProgressBar");
-            prgsBar.Visibility = Visibility.Visible;
+            Dispatcher.Invoke(() =>
+            {
+                var prgsBar = (ProgressBar)FindName("ProjectsProgressBar");
+                prgsBar.Visibility = Visibility.Visible;
 
-            var project = (ProjectViewModel)_projectsComboBox.SelectedValue;
-            _computePowerController.DownloadProjectDll(UpdateDllDownloadProgress, project.DllUrl, project.DllName);
+                var project = (ProjectViewModel)_projectsComboBox.SelectedValue;
+                _computePowerController.DownloadProjectDll(UpdateDllDownloadProgress, project.DllUrl, project.DllName);
+            });
         }
 
         #endregion

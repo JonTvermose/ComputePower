@@ -62,8 +62,10 @@ namespace ComputePower.Helpers
         /// <param name="assemblyName">Name of the assembly (without .dll)</param>
         /// <param name="methodName">Name of the method to call</param>
         /// <param name="progressHandler">EventHandler to recieve progress updates</param>
+        /// <param name="jsonData">Data to calculate on, in JSON format</param>
         /// <returns></returns>
-        public object CallMethod(string assemblyPath, string assemblyName, string methodName, EventHandler<EventArgs> progressHandler)
+        public string CallMethod(string assemblyPath, string assemblyName, string methodName,
+            EventHandler<EventArgs> progressHandler, string jsonData)
         {
             var filepath = assemblyPath + "\\" + assemblyName + ".dll";
 
@@ -71,7 +73,7 @@ namespace ComputePower.Helpers
             Assembly computationAssembly = Assembly.LoadFile(filepath);
             
             // Get the type of the computation class where the method is located
-            Type classType = computationAssembly.GetType(assemblyName + ".Computation.Computation");
+            Type classType = computationAssembly.GetType(assemblyName + ".Computation");
             if(classType == null)
                 throw new Exception();
 
@@ -89,8 +91,8 @@ namespace ComputePower.Helpers
             try
             {
                 // Invoke (call) the method and await the result (method is async)
-                var result = method.Invoke(objectType, new object[] { progressHandler });
-                return result;
+                var result = method.Invoke(objectType, new object[] { progressHandler, jsonData });
+                return result.ToString();
             }
             catch (Exception e)
             {

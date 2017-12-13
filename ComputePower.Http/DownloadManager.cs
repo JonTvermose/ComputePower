@@ -72,6 +72,16 @@ namespace ComputePower.Http
             return !isMoreToRead;
         }
 
+        public async Task<string> GetUrl(string url)
+        {
+            using (var client = new HttpClient())
+            {
+                var result = await client.GetStringAsync(url);
+                OnProgress(this, new ProgressEventArgs(0, "Data downloadet."));
+                return result;
+            }
+        }
+
         protected virtual void OnProgress(object sender, ProgressEventArgs args)
         {
             Progress?.Invoke(sender, args);

@@ -12,14 +12,25 @@ namespace ComputePower
 {
     public class ComputePowerController : IComputePowerController
     {
-        public void BeginComputation(string assemblyPath, string assemblyName, EventHandler<EventArgs> progressUpdateEventHandler)
+        private string _data;
+        private int _currentProjectId;
+        private int _cycles = 0;
+
+        public async Task BeginComputation(int projectId, string assemblyPath, string assemblyName, EventHandler<EventArgs> progressUpdateEventHandler)
         {
-            object result = null;
+            string result = null;
+            if (string.IsNullOrWhiteSpace(_data) || _currentProjectId != projectId)
+            {
+                // Download the data needed for the calculation
+                _data = await DownloadProjectData(progressUpdateEventHandler, projectId);
+                _currentProjectId = projectId;
+            }
             try
             {
                 // Load the assembly and begin computation
                 DllLoader dllLoader = new DllLoader();
-                result = dllLoader.CallMethod(assemblyPath, assemblyName, ConfigurationManager.AppSettings.Get("MethodName"), progressUpdateEventHandler);
+                result = dllLoader.CallMethod(assemblyPath, assemblyName, ConfigurationManager.AppSettings.Get("MethodName"), progressUpdateEventHandler, _data);
+                _cycles++;
             }
             catch (Exception e)
             {
@@ -28,9 +39,10 @@ namespace ComputePower
                 progressUpdateEventHandler?.Invoke(this, args);
             }
 
-            // Save results to a file
-            FileSaver fileSaver = new FileSaver();
-            fileSaver.SerializeAndSaveFile(result, Directory.GetCurrentDirectory(), assemblyName);
+            // Save results to a file, should be posted to the server. TODO - Currently disabled to not fill up the harddrive
+            //FileSaver fileSaver = new FileSaver();
+            //fileSaver.SerializeAndSaveFile(result, Directory.GetCurrentDirectory(), assemblyName + _cycles);
+            progressUpdateEventHandler?.Invoke(this, new ComputationProgressEventArgs("completed"));
         }
 
         // Download the list of projects and parse them to objects
@@ -64,8 +76,20 @@ namespace ComputePower
         {
             var downloadManager = new DownloadManager();
             string path = Directory.GetCurrentDirectory();
+#if DEBUG
+            path = path.Substring(0, path.Length - 9); // Dont save in the /bin/debug folder.
+#endif
+
             downloadManager.Progress += progressHandler;
-            return await downloadManager.DownloadAndSaveFile(dllUrl, path, fileName);
+            return await downloadManager.DownloadAndSaveFile(dllUrl, path, fileName + ".dll");
+        }
+
+        private async Task<string> DownloadProjectData(EventHandler<EventArgs> progressHandler, int projectId)
+        {
+            var downloadManager = new DownloadManager();
+            string url = ConfigurationManager.AppSettings.Get("projectsUrl") + "/" + projectId + "/data";
+            downloadManager.Progress += progressHandler;
+            return await downloadManager.GetUrl(url);
         }
 
     }

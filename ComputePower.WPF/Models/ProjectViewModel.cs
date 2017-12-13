@@ -8,12 +8,26 @@ namespace ComputePower.WPF.Models
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private int _id;
         private string _name;
         private string _description;
         private string _dllUrl;
         private string _dllName;
         private string _websiteUrl;
         private bool _isDllDownloaded;
+
+        public int Id
+        {
+            get { return _id; }
+            set
+            {
+                if (value != _id)
+                {
+                    _id = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public string Name
         {

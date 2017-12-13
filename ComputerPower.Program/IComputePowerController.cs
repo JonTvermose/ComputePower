@@ -8,10 +8,8 @@ namespace ComputePower
 {
     public interface IComputePowerController
     {
-        void BeginComputation(string assemblyPath, string assemblyName, EventHandler<EventArgs> progressUpdateEventHandler);
-
+        Task BeginComputation(int projectId, string assemblyPath, string assemblyName, EventHandler<EventArgs> progressUpdateEventHandler);
         Task<List<Project>> DownloadProjects(EventHandler<EventArgs> progressHandler);
-
         Task<bool> DownloadProjectDll(EventHandler<EventArgs> progressHandler, string dllUrl, string fileName);
     }
 }
